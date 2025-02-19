@@ -15,12 +15,13 @@ const CommonRegi = () => {
         CompanyResources: '',
         Remarks: '',
         EOD: '',
-        Fileupload: '',
+        profileimg: '',
+        Fileupload:" "
     });
 
     const handlesubmit = async (e) => {
         e.preventDefault();
-        const { name, email, password, role, JOD, contactnumber, address, Currentsalary, CompanyResources, Remarks, Fileupload } = user;
+        const { name, email, password, role, JOD, contactnumber, address, Currentsalary, CompanyResources, Remarks, profileimg, Fileupload } = user;
 
         if (!name || !email || !password || !role || !JOD) {
             alert("All fields are required");
@@ -36,7 +37,7 @@ const CommonRegi = () => {
         try {
             const formData = new FormData();
             Object.keys(user).forEach(key => {
-                if (key === "Fileupload") {
+                if (key === "profileimg" || "Fileupload") {
                     formData.append(key, user[key]);
                 } else {
                     formData.append(key, user[key]);
@@ -65,7 +66,8 @@ const CommonRegi = () => {
                 CompanyResources: '',
                 Remarks: '',
                 EOD: '',
-                Fileupload: '',
+                profileimg: '',
+                Fileupload: ''
             });
 
             localStorage.removeItem('admintokens');
@@ -88,7 +90,7 @@ const CommonRegi = () => {
     const handleFileChange = (e) => {
         setUser({
             ...user,
-            Fileupload: e.target.files[0],
+            [e.target.name]: e.target.files[0],
         });
     };
 
@@ -236,6 +238,16 @@ const CommonRegi = () => {
                     </div>
 
                     {/* File Upload */}
+                    <div className="flex flex-col">
+                        <label className="font-medium text-gray-600">Image Upload:</label>
+                        <input
+                            type="file"
+                            name="profileimg"
+                            onChange={handleFileChange}
+                            className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        />
+                    </div>
+
                     <div className="flex flex-col">
                         <label className="font-medium text-gray-600">File Upload:</label>
                         <input

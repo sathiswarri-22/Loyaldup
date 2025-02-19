@@ -1,6 +1,8 @@
 "use client"
 import React, { useState, useEffect } from "react";
-import { PDFDocument } from "pdf-lib";
+import { PDFDocument, rgb } from "pdf-lib";
+import axios from "axios";
+import { useSearchParams } from 'next/navigation';
 
 const QuotationWithMerge = () => {
   const [rows, setRows] = useState([
@@ -14,11 +16,74 @@ const QuotationWithMerge = () => {
       total: "",
     },
   ]);
-  const [daysForPayment, setDaysForPayment] = useState(30); // Days for payment
-  const [daysForValidity, setDaysForValidity] = useState(30); // Days for quote validity
-  const [isFormFilled, setIsFormFilled] = useState(false);
 
-  // Handle input change for the table
+  const searchParams = useSearchParams();
+  const enqid = searchParams.get('EnquiryNo'); // Fetch Enquiry ID directly from query params
+
+  const [daysForPayment, setDaysForPayment] = useState(30);
+  const [daysForValidity, setDaysForValidity] = useState(30);
+  const [isFormFilled, setIsFormFilled] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleGeneratepdf = async () => {
+    setLoading(true);
+
+    // Make sure enqid is available before proceeding
+    if (!enqid) {
+      console.error("Enquiry ID is missing");
+      setLoading(false);
+      return;
+    }
+
+    const enquiries = JSON.parse(localStorage.getItem('enquiries')) || [];
+    const updatedEnquiries = enquiries.map((enquiry) => {
+      if (enquiry.EnquiryNo === enqid) {
+        return {
+          ...enquiry,
+          status: 'Enquiry-3stage'
+        };
+      }
+      return enquiry;
+    });
+
+    localStorage.setItem('enquiries', JSON.stringify(updatedEnquiries));
+
+    console.log('Sending data to the API:', {
+      EnquiryNo: enqid,
+      status: 'Enquiry-3stage',
+    });
+
+const Token = localStorage.getItem('admintokens')
+
+    try {
+      const response = await axios.put('http://localhost:5005/api/quotation', {
+        EnquiryNo: enqid,
+        status: 'Enquiry-3stage',
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Token}`,
+        },
+      });
+      
+  
+      // Handle the response
+      if (!response.ok) {
+        return response.json().then((err) => {
+          throw new Error(err.message || 'Something went wrong');
+        });
+      }
+  
+      const data = await response.json();
+      console.log('Success:', data); // Handle success response
+  
+    } catch (error) {
+      console.error('Error:', error.response ? error.response.data : error); // This will log the error message from the server
+    }
+    
+  
+    setLoading(false);
+  };
   const handleInputChange = (e, index) => {
     const { name, value } = e.target;
     const updatedRows = [...rows];
@@ -66,27 +131,74 @@ const QuotationWithMerge = () => {
   };
 
   const handleConvertToPDF = async () => {
-    // Create a new PDF document
     const pdfDoc = await PDFDocument.create();
 
     try {
-      // Fetch the base Offer Format PDF
       const offerFormatResponse = await fetch("/Offer Format.pdf");
       const offerFormatArrayBuffer = await offerFormatResponse.arrayBuffer();
       const offerFormatPdf = await PDFDocument.load(offerFormatArrayBuffer);
 
-      // Copy pages from the Offer Format PDF
       const copiedPages = await pdfDoc.copyPages(offerFormatPdf, offerFormatPdf.getPageIndices());
       copiedPages.forEach((page) => pdfDoc.addPage(page));
 
-      // Embed Helvetica font (you can also use any other fonts by embedding them)
       const font = await pdfDoc.embedFont("Helvetica");
-
-      // Draw the product details table onto the new PDF
-      const page = pdfDoc.getPages()[1]; // Work with the second page, where we want the table
+      const page = pdfDoc.getPages()[1]; 
       const { width, height } = page.getSize();
       const margin = 30;
-      const rowHeight = 20; // Make rows bigger for better readability
+      const rowHeight = 20;
+  
+      let currentY = height - 450;
+  
+      page.drawText('Loyalty Automation Pvt Ltd', {
+        x: margin,
+        y: currentY,
+        size: 18,
+        font,
+        color: rgb(0, 0, 0), 
+      });
+
+      currentY -= 20;
+  
+      page.drawText('Technocommercial Offer', {
+        x: margin,
+        y: currentY,
+        size: 14,
+        font,
+        color: rgb(0, 0, 0),
+      });
+
+      currentY -= 20;
+
+      page.drawText('Our Ref No: ', {
+        x: margin,
+        y: currentY,
+        size: 12,
+        font,
+        color: rgb(0, 0, 0),
+      });
+
+      currentY -= 20;
+  
+      page.drawText('Your Reference: ', {
+        x: margin,
+        y: currentY,
+        size: 12,
+        font,
+        color: rgb(0, 0, 0),
+      });
+  
+      currentY -= 20;
+  
+      page.drawText('Consignee Date: ', {
+        x: margin,
+        y: currentY,
+        size: 12,
+        font,
+        color: rgb(0, 0, 0),
+      });
+
+      currentY -= 40; 
+
       const tableColumn = ["S. No", "HSN Code", "Unit Description", "UOM", "Quantity", "Unit Price", "Total"];
       const tableRows = rows.map((row) => [
         row.sno,
@@ -97,36 +209,33 @@ const QuotationWithMerge = () => {
         row.unitPrice,
         row.total,
       ]);
-      const colWidths = [40, 80, 100, 80, 80, 100, 100]; // Increase column widths
+      const colWidths = [40, 80, 100, 80, 80, 100, 100];
 
-      let currentY = height - 500; // Start drawing the table near the bottom of the second page
+      currentY = height - 600;
 
-      // Draw table headers
       tableColumn.forEach((header, index) => {
         page.drawText(header, {
           x: margin + colWidths.slice(0, index).reduce((sum, width) => sum + width, 0),
           y: currentY,
-          size: 12, // Increase the font size for headers
+          size: 12,
           font,
         });
       });
 
-      currentY -= rowHeight; // Move down after drawing the headers
+      currentY -= rowHeight;
 
-      // Draw table rows
       tableRows.forEach((row) => {
         row.forEach((cell, index) => {
           page.drawText(cell, {
             x: margin + colWidths.slice(0, index).reduce((sum, width) => sum + width, 0),
             y: currentY,
-            size: 11, // Increase the font size for the content
+            size: 11,
             font,
           });
         });
         currentY -= rowHeight;
       });
 
-      // Draw total
       const totalPrice = calculateTotalPrice();
       page.drawText(`Total: Rs. ${totalPrice}`, {
         x: margin + colWidths.slice(0, 6).reduce((sum, width) => sum + width, -40),
@@ -135,8 +244,7 @@ const QuotationWithMerge = () => {
         font,
       });
 
-      // Add Terms and Conditions section below the table
-      currentY -= 40; // Adjust position for Terms and Conditions
+      currentY -= 40; 
       const termsText = `Terms and Conditions:\n1. All payments are due within ${daysForPayment} days.\n2. Prices are exclusive of taxes.\n3. Delivery charges will be added as applicable.\n4. This quote is valid for ${daysForValidity} days from the date of issue.`;
       page.drawText(termsText, {
         x: margin,
@@ -145,7 +253,6 @@ const QuotationWithMerge = () => {
         font,
       });
 
-      // Save the final PDF
       const mergedPdfBytes = await pdfDoc.save();
       const mergedPdfUrl = URL.createObjectURL(new Blob([mergedPdfBytes]));
       const link = document.createElement("a");
@@ -164,7 +271,7 @@ const QuotationWithMerge = () => {
 
         {/* Table Form */}
         <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-gray-700">Add Product Details</h3>
+          <h3 className="text-xl font-semibold text-gray-700">Add Product Details {enqid}</h3>
           {["sno", "hsnCode", "unitDescription", "uom", "quantity", "unitPrice"].map((field, index) => (
             <div key={index} className="flex items-center space-x-4">
               <label className="block w-1/4">{`Enter ${field.charAt(0).toUpperCase() + field.slice(1)}`}</label>
@@ -188,7 +295,6 @@ const QuotationWithMerge = () => {
           <div className="mt-6">
             <label className="block text-gray-700 text-lg mb-2">Terms and Conditions</label>
             <div className="space-y-4">
-              {/* First term with dropdown for days */}
               <div>
                 <label>All payments are due within</label>
                 <select
@@ -203,14 +309,8 @@ const QuotationWithMerge = () => {
                   ))}
                 </select>
               </div>
-
-              {/* Second term */}
               <div>Prices are exclusive of taxes.</div>
-
-              {/* Third term */}
               <div>Delivery charges will be added as applicable.</div>
-
-              {/* Fourth term with dropdown for days */}
               <div>
                 <label>This quote is valid for</label>
                 <select
@@ -266,7 +366,10 @@ const QuotationWithMerge = () => {
 
           {/* Generate PDF Button */}
           <button
-            onClick={handleConvertToPDF}
+            onClick={() => {
+              handleConvertToPDF();
+              handleGeneratepdf();
+            }}
             disabled={!isFormFilled}
             className={`px-6 py-2 mt-6 ${!isFormFilled ? "bg-gray-400 cursor-not-allowed" : "bg-green-600"} text-white rounded-lg hover:bg-green-700 transition duration-300`}
           >

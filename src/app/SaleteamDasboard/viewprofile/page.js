@@ -13,6 +13,8 @@ const ProfileView = () => {
         profileimg: ''
     });
 
+
+    
     useEffect(() => {
         if (!token) {
             alert("No token found. Please login as an admin.");
@@ -45,7 +47,7 @@ const ProfileView = () => {
         }
     }, [Eid]);
 
-    const fileUploadUrl = profileData.Fileupload ? `http://localhost:5005/api/commonprofile/uploads/${profileData.Fileupload}` : '';
+    const fileUploadUrl = profileData.Fileupload ? `http://localhost:5005/api/uploads/${profileData.profileimg}` : '';
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-100 to-green-300 py-10">
@@ -94,7 +96,7 @@ const ProfileView = () => {
                         <div className="flex items-center border-2 border-green-300 rounded-xl p-3">
                             {profileData.profileimg && (
                                 <img 
-                                    src={profileData.profileimg} 
+                                    src={fileUploadUrl}
                                     alt="Profile" 
                                     className="w-24 h-24 object-cover rounded-full border-4 border-green-300"
                                 />

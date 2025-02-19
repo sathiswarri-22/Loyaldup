@@ -6,7 +6,7 @@ const Viewallprofile = () => {
   const token = localStorage.getItem('admintokens');
   if (!token) {
     alert("No token found. Please login as an admin.");
-    return;
+    return null;
   }
 
   const [profileData, setProfileData] = useState([]);
@@ -14,7 +14,7 @@ const Viewallprofile = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    setLoading(true); 
+    setLoading(true);
 
     axios.get('http://localhost:5005/api/adminviewallprofile', {
       headers: {
@@ -26,7 +26,7 @@ const Viewallprofile = () => {
       console.log(response.data);
 
       if (response.data && response.data.getallprofile) {
-        setProfileData(response.data.getallprofile); 
+        setProfileData(response.data.getallprofile);
       } else {
         setError('Unexpected response data');
       }
@@ -35,59 +35,54 @@ const Viewallprofile = () => {
       console.error('Error fetching profile data:', error);
       setError('Error fetching profile data');
     })
-    .finally(() => setLoading(false)); 
+    .finally(() => setLoading(false));
   }, [token]);
 
-  if (loading) return (
-    <div className="text-center text-green-600 text-2xl">
-      <div className="animate-spin border-t-4 border-green-600 rounded-full w-16 h-16 mx-auto my-8"></div>
-      Loading...
-    </div>
-  );
+  if (loading) return <div className="text-center text-green-600">Loading...</div>;
 
-  if (error) return <div className="text-center text-red-600 text-xl mt-4">{error}</div>;
+  if (error) return <div className="text-center text-red-600">{error}</div>;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-teal-100 to-blue-200 py-8">
-      <div className="w-full max-w-4xl p-8 bg-white rounded-xl shadow-lg space-y-6">
-        <h1 className="text-4xl font-bold text-center text-teal-700 mb-6">All User Profiles</h1>
-
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-100 to-green-300">
+      <div className="w-full max-w-4xl p-8 space-y-6 bg-white rounded-xl shadow-2xl">
         {profileData.length > 0 ? (
           profileData.map((profile, index) => {
-            const fileUrl = profile.Fileupload ? `http://localhost:5005/api/commonprofile/uploads/${profile.Fileupload}` : '';
+            const fileUrl = `http://localhost:5005/api/uploads/${profile.Fileupload}`;
+            const profileImg = profile.profileimg ? `http://localhost:5005/api/uploads/${profile.profileimg}` : '';
 
             return (
-              <div key={index} className="bg-white p-6 rounded-2xl shadow-xl mb-6 hover:shadow-2xl transition-all transform hover:scale-105">
-                <div className="flex justify-center mb-6">
-                  <div className="relative w-32 h-32">
-                    <img 
-                      src={profile.profileimg || '/default-profile.jpg'} 
-                      alt="Profile" 
-                      className="w-full h-full object-cover rounded-full border-4 border-teal-500 transition-transform transform hover:scale-110"
-                    />
-                  </div>
-                </div>
+              <div key={index} className="space-y-4">
+                <div className="bg-white p-6 rounded-lg shadow-md">
+                  <table className="w-full mb-4">
+                    <tbody>
+                      <tr>
+                        <td className="p-2"><label className="font-medium text-gray-600">E-Id</label></td>
+                        <td className="p-2"><input className="w-full p-2 border-2 border-green-200 rounded-lg" value={profile.Eid} readOnly /></td>
+                      </tr>
+                      <tr>
+                        <td className="p-2"><label className="font-medium text-gray-600">Name</label></td>
+                        <td className="p-2"><input className="w-full p-2 border-2 border-green-200 rounded-lg" value={profile.name} readOnly /></td>
+                      </tr>
+                      <tr>
+                        <td className="p-2"><label className="font-medium text-gray-600">E-mail</label></td>
+                        <td className="p-2"><input className="w-full p-2 border-2 border-green-200 rounded-lg" value={profile.email} readOnly /></td>
+                      </tr>
+                      
+                      <tr>
+                        <td className="p-2">
+                          <a href={fileUrl} target="_blank" rel="noreferrer" className="text-green-600 hover:text-green-700">
+                            Open First PDF
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
 
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="flex justify-between items-center">
-                      <label className="font-medium text-gray-700">E-Id</label>
-                      <input value={profile.Eid} readOnly className="w-full p-3 pl-4 rounded-lg bg-gray-100 border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                  {profileImg && (
+                    <div className="flex justify-center">
+                      <img src={profileImg} alt="Profile" className="w-40 h-40 object-cover rounded-full border-2 border-green-200 shadow-lg" />
                     </div>
-                    <div className="flex justify-between items-center">
-                      <label className="font-medium text-gray-700">Name</label>
-                      <input value={profile.name} readOnly className="w-full p-3 pl-4 rounded-lg bg-gray-100 border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <label className="font-medium text-gray-700">E-mail</label>
-                      <input value={profile.email} readOnly className="w-full p-3 pl-4 rounded-lg bg-gray-100 border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <a href={fileUrl} target="_blank" rel="noreferrer" className="text-teal-600 hover:text-teal-800 underline text-lg font-medium">
-                        Open First PDF
-                      </a>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
             );

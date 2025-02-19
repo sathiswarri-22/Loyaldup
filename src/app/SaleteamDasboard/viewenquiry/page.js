@@ -1,6 +1,8 @@
-"use client";
-import { useEffect, useState } from "react";
+"use client"
+import { useState , useEffect } from "react";
+import React from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const ViewEnquiryPage = () => {
   const [enquiryData, setEnquiryData] = useState([]);
@@ -12,45 +14,9 @@ const ViewEnquiryPage = () => {
   const token = localStorage.getItem("admintokens");
   const Eid = localStorage.getItem("idstore");
   const role = localStorage.getItem("role");
+  const router = useRouter();
 
-  useEffect(() => {
-    if (!token) return;
-
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const response =
-          role === "sales head"
-            ? await axios.get(`http://localhost:5005/api/getenquiry/${Eid}`, {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json",
-                },
-              })
-            : await axios.get(
-                `http://localhost:5005/api/getenquiryforsaletam/${Eid}`,
-                {
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                  },
-                }
-              );
-
-        if (role === "sales head") {
-          setEnquiryData(response.data.getdata || []);
-        } else {
-          setSaleEnquiryData(response.data.getdatas || []);
-        }
-        setLoading(false);
-      } catch (err) {
-        setError(err.message || "Failed to fetch enquiry data");
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [Eid, token, role]);
+  
 
   const handleSelectEnquiry = (EnquiryNo) => {
     setSelectedEnquiries((prevSelectedEnquiries) => {
@@ -93,10 +59,31 @@ const ViewEnquiryPage = () => {
     }
   };
 
+  const handleComplete = (enquiryId) => {
+    // Handle completion logic here
+    alert(`Enquiry ${enquiryId} marked as complete.`);
+  };
+
+  const Quotation = () => {
+    router.push('/SaleteamDasboard/Quotation');
+  };
+
+  const Salesorder = () => {
+    router.push('/SaleteamDasboard/SalesOrder');
+  };
+
+  const perfoma = () => {
+    router.push('/SaleteamDasboard/perfoma');
+  };
+
   return (
     (role === "sales head" || role === "Sales Employee") && (
       <div className="min-h-screen bg-gradient-to-br from-green-100 to-green-300 p-8">
         <div className="bg-white rounded-xl shadow-2xl p-6">
+          <h2 className="text-3xl font-semibold text-center text-green-600">Dashboard</h2>
+
+          {/* Other navigation buttons... */}
+
           <h1 className="text-4xl font-bold text-center text-green-600 mb-4">Enquiry Data</h1>
           <form onSubmit={handlesubmit} className="space-y-6">
             {/* Table with header */}
@@ -122,6 +109,7 @@ const ViewEnquiryPage = () => {
                     <th className="px-4 py-2">POSTAL CODE</th>
                     <th className="px-4 py-2">STATE</th>
                     <th className="px-4 py-2">REMARKS</th>
+                    <th className="px-4 py-2">ACTION</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -154,6 +142,34 @@ const ViewEnquiryPage = () => {
                             <td className="px-4 py-2">{data?.AddressDetails?.PostalCode || "N/A"}</td>
                             <td className="px-4 py-2">{data?.AddressDetails?.State || "N/A"}</td>
                             <td className="px-4 py-2">{data?.DescriptionDetails || "N/A"}</td>
+                            <td className="px-4 py-2">
+                              <button
+                                onClick={() => handleComplete(data._id)}
+                                className="py-1 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                              >
+                                Complete
+                              </button>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={Quotation}
+                                  className="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                >
+                                  Quotation
+                                </button>
+                                <button
+                                  onClick={Salesorder}
+                                  className="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                >
+                                  Sales Order
+                                </button>
+                                <button
+                                  onClick={perfoma}
+                                  className="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                >
+                                  Perfoma
+                                </button>
+                              </div>
+                            </td>
                           </tr>
                         ))
                       : (
@@ -181,6 +197,34 @@ const ViewEnquiryPage = () => {
                           <td className="px-4 py-2">{data?.AddressDetails?.PostalCode || "N/A"}</td>
                           <td className="px-4 py-2">{data?.AddressDetails?.State || "N/A"}</td>
                           <td className="px-4 py-2">{data?.DescriptionDetails || "N/A"}</td>
+                          <td className="px-4 py-2">
+                            <button
+                              onClick={() => handleComplete(data._id)}
+                              className="py-1 px-4 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                            >
+                              Complete
+                            </button>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={Quotation}
+                                className="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                              >
+                                Quotation
+                              </button>
+                              <button
+                                onClick={Salesorder}
+                                className="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                              >
+                                Sales Order
+                              </button>
+                              <button
+                                onClick={perfoma}
+                                className="py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                              >
+                                Perfoma
+                              </button>
+                            </div>
+                          </td>
                         </tr>
                       ))
                     : (
@@ -218,5 +262,4 @@ const ViewEnquiryPage = () => {
     )
   );
 };
-
-export default ViewEnquiryPage;
+ export default ViewEnquiryPage

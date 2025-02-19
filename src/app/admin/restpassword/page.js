@@ -2,7 +2,7 @@
 
 import axios from 'axios';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation'; 
 
 const PasswordReset = () => {
   const router = useRouter();
@@ -15,19 +15,22 @@ const PasswordReset = () => {
     e.preventDefault();
     const { password, confirmpassword } = passwords;
     if (!password || !confirmpassword) {
-      console.log('data is required');
+      console.log('Data is required');
+      return;
     }
+
     if (password !== confirmpassword) {
       alert("Passwords don't match!");
       return;
     }
+
     try {
       const response = await axios.put('http://localhost:5005/api/reset-headerpassword', passwords);
       console.log(response.data);
-      alert('Password is reset');
+      alert('Password has been reset');
       router.push('/');
     } catch (err) {
-      console.log('Error occurred', err);
+      console.log('An error occurred', err);
     }
   };
 
@@ -47,32 +50,28 @@ const PasswordReset = () => {
         <form onSubmit={handlesubmit} className="space-y-4">
           <div className="relative">
             <label className="block mb-2 text-sm font-medium text-gray-600">Password</label>
-            <div className="flex items-center border-2 border-green-200 rounded-lg">
-              <input
-                type="password"
-                name="password"
-                placeholder="Enter your new password"
-                value={passwords.password}
-                onChange={handlechange}
-                className="w-full p-3 pl-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
-                required
-              />
-            </div>
+            <input
+              name="password"
+              type="password"
+              placeholder="Enter your new password"
+              value={passwords.password}
+              onChange={handlechange}
+              className="w-full p-3 rounded-lg border-2 border-green-200 focus:outline-none focus:ring-2 focus:ring-green-400"
+              required
+            />
           </div>
 
           <div className="relative">
             <label className="block mb-2 text-sm font-medium text-gray-600">Confirm Password</label>
-            <div className="flex items-center border-2 border-green-200 rounded-lg">
-              <input
-                type="password"
-                name="confirmpassword"
-                placeholder="Confirm your new password"
-                value={passwords.confirmpassword}
-                onChange={handlechange}
-                className="w-full p-3 pl-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
-                required
-              />
-            </div>
+            <input
+              name="confirmpassword"
+              type="password"
+              placeholder="Confirm your new password"
+              value={passwords.confirmpassword}
+              onChange={handlechange}
+              className="w-full p-3 rounded-lg border-2 border-green-200 focus:outline-none focus:ring-2 focus:ring-green-400"
+              required
+            />
           </div>
 
           <button
