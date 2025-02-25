@@ -15,13 +15,13 @@ const CommonRegi = () => {
         CompanyResources: '',
         Remarks: '',
         EOD: '',
-        profileimg: '',
-        Fileupload:" "
+        Fileupload: '',
+        profileimg: ''
     });
 
     const handlesubmit = async (e) => {
         e.preventDefault();
-        const { name, email, password, role, JOD, contactnumber, address, Currentsalary, CompanyResources, Remarks, profileimg, Fileupload } = user;
+        const { name, email, password, role, JOD, contactnumber, address, Currentsalary, CompanyResources, Remarks, Fileupload } = user;
 
         if (!name || !email || !password || !role || !JOD) {
             alert("All fields are required");
@@ -37,7 +37,7 @@ const CommonRegi = () => {
         try {
             const formData = new FormData();
             Object.keys(user).forEach(key => {
-                if (key === "profileimg" || "Fileupload") {
+                if (key === "Fileupload") {
                     formData.append(key, user[key]);
                 } else {
                     formData.append(key, user[key]);
@@ -66,16 +66,16 @@ const CommonRegi = () => {
                 CompanyResources: '',
                 Remarks: '',
                 EOD: '',
-                profileimg: '',
-                Fileupload: ''
+                Fileupload: '',
+                profileimg: ''
             });
 
             localStorage.removeItem('admintokens');
             console.log('Token removed');
 
         } catch (err) {
-            console.log('Error occurred', err);
-            alert('An error occurred during registration. Please try again.');
+            console.log('Error occurred', err.response ? err.response.data : err.message);
+            alert(`Error:${err.response.data.message || 'An error occurred during registration. Please try again.'}`);
         }
     };
 
@@ -160,7 +160,6 @@ const CommonRegi = () => {
                                 <option value="Sales Employee">SALE EMPLOYEE</option>
                                 <option value="Inventory Manager">INVENTORY MANAGER</option>
                                 <option value="Lead filler">LEAD MANAGER</option>
-
                             </select>
                         </div>
                     </div>
@@ -240,20 +239,20 @@ const CommonRegi = () => {
 
                     {/* File Upload */}
                     <div className="flex flex-col">
-                        <label className="font-medium text-gray-600">Image Upload:</label>
+                        <label className="font-medium text-gray-600">Resume Upload:</label>
                         <input
                             type="file"
-                            name="profileimg"
+                            name="Fileupload"
                             onChange={handleFileChange}
                             className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                         />
                     </div>
 
                     <div className="flex flex-col">
-                        <label className="font-medium text-gray-600">File Upload:</label>
+                        <label className="font-medium text-gray-600">Profile Image Upload:</label>
                         <input
                             type="file"
-                            name="Fileupload"
+                            name="profileimg"
                             onChange={handleFileChange}
                             className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                         />
