@@ -7,25 +7,26 @@ import { useRouter } from 'next/navigation';
 const PasswordReset = () => {
   const router = useRouter();
   const [passwords, setPasswords] = useState({
+    Eid : '',
     password: '',
-    confirmpassword: '',
+    confirmPassword: '',
   });
 
   const handlesubmit = async (e) => {
     e.preventDefault();
-    const { password, confirmpassword } = passwords;
-    if (!password || !confirmpassword) {
+    const { Eid,password, confirmPassword } = passwords;
+    if (!Eid|| !password || !confirmPassword) {
       console.log('Data is required');
       return;
     }
 
-    if (password !== confirmpassword) {
+    if (password !== confirmPassword) {
       alert("Passwords don't match!");
       return;
     }
 
     try {
-      const response = await axios.put('http://localhost:5005/api/reset-headerpassword', passwords);
+      const response = await axios.put('http://localhost:5005/api/reset-password', passwords);
       console.log(response.data);
       alert('Password has been reset');
       router.push('/');
@@ -48,6 +49,20 @@ const PasswordReset = () => {
         <h1 className="text-4xl font-bold text-center text-green-600">Reset Password</h1>
 
         <form onSubmit={handlesubmit} className="space-y-4">
+
+        <div className="relative">
+            <label className="block mb-2 text-sm font-medium text-gray-600">Eid</label>
+            <input
+              name="Eid"
+              type="Eid"
+              placeholder="Enter your new password"
+              value={passwords.Eid}
+              onChange={handlechange}
+              className="w-full p-3 rounded-lg border-2 border-green-200 focus:outline-none focus:ring-2 focus:ring-green-400"
+              required
+            />
+          </div>
+
           <div className="relative">
             <label className="block mb-2 text-sm font-medium text-gray-600">Password</label>
             <input
@@ -64,10 +79,10 @@ const PasswordReset = () => {
           <div className="relative">
             <label className="block mb-2 text-sm font-medium text-gray-600">Confirm Password</label>
             <input
-              name="confirmpassword"
+              name="confirmPassword"
               type="password"
               placeholder="Confirm your new password"
-              value={passwords.confirmpassword}
+              value={passwords.confirmPassword}
               onChange={handlechange}
               className="w-full p-3 rounded-lg border-2 border-green-200 focus:outline-none focus:ring-2 focus:ring-green-400"
               required

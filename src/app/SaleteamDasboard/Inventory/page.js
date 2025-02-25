@@ -54,7 +54,7 @@ const ProductList = () => {
         const response = await axios.post('http://localhost:5005/api-inventory/add-product', newProduct);
         setProducts([...products, response.data]);
       }
-
+        fetchProducts()
       setNewProduct({
         Itemcode: '',
         Model: '',

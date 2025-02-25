@@ -11,6 +11,9 @@ const PasswordReset = () => {
     confirmpassword: '',
   });
 
+  const token = localStorage.getItem('admintokens');
+
+
   const handlesubmit = async (e) => {
     e.preventDefault();
     const { password, confirmpassword } = passwords;
@@ -22,7 +25,11 @@ const PasswordReset = () => {
       return;
     }
     try {
-      const response = await axios.put('http://localhost:5005/api/reset-headerpassword', passwords);
+      const response = await axios.put('http://localhost:5005/api/reset-headerpassword', passwords,{
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+     } ,});
       console.log(response.data);
       alert('Password is reset');
       router.push('/');

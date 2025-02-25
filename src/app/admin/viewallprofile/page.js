@@ -43,50 +43,52 @@ const Viewallprofile = () => {
   if (error) return <div className="text-center text-red-600">{error}</div>;
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-100 to-green-300">
-      <div className="w-full max-w-4xl p-8 space-y-6 bg-white rounded-xl shadow-2xl">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-teal-100 to-teal-300 p-6">
+      <div className="w-full max-w-6xl p-8 space-y-6 bg-white rounded-xl shadow-xl">
         {profileData.length > 0 ? (
-          profileData.map((profile, index) => {
-            const fileUrl = `http://localhost:5005/api/uploads/${profile.Fileupload}`;
-            const profileImg = profile.profileimg ? `http://localhost:5005/api/uploads/${profile.profileimg}` : '';
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {profileData.map((profile, index) => {
+              const fileUrl = `http://localhost:5005/api/uploads/${profile.Fileupload}`;
+              const profileImg = profile.profileimg ? `http://localhost:5005/api/uploads/${profile.profileimg}` : '';
 
-            return (
-              <div key={index} className="space-y-4">
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                  <table className="w-full mb-4">
+              return (
+                <div key={index} className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out">
+                  <div className="text-center mb-4">
+
+                    {profileImg && (
+                      <img src={profileImg} alt="Profile" className="w-24 h-24 object-cover rounded-full border-4 border-teal-300 mx-auto mb-4 shadow-lg" />
+                    )}
+                    <h2 className="text-2xl font-semibold text-gray-800">{profile.name}</h2>
+                    <p className="text-sm text-gray-500">{profile.email}</p>
+                  </div>
+                  <table className="w-full text-left">
                     <tbody>
                       <tr>
-                        <td className="p-2"><label className="font-medium text-gray-600">E-Id</label></td>
-                        <td className="p-2"><input className="w-full p-2 border-2 border-green-200 rounded-lg" value={profile.Eid} readOnly /></td>
+                        <td className="py-2 px-3 font-medium text-gray-600">E-Id</td>
+                        <td className="py-2 px-3 text-gray-700">{profile.Eid}</td>
                       </tr>
                       <tr>
-                        <td className="p-2"><label className="font-medium text-gray-600">Name</label></td>
-                        <td className="p-2"><input className="w-full p-2 border-2 border-green-200 rounded-lg" value={profile.name} readOnly /></td>
+                        <td className="py-2 px-3 font-medium text-gray-600">Name</td>
+                        <td className="py-2 px-3 text-gray-700">{profile.name}</td>
                       </tr>
                       <tr>
-                        <td className="p-2"><label className="font-medium text-gray-600">E-mail</label></td>
-                        <td className="p-2"><input className="w-full p-2 border-2 border-green-200 rounded-lg" value={profile.email} readOnly /></td>
+                        <td className="py-2 px-3 font-medium text-gray-600">E-mail</td>
+                        <td className="py-2 px-3 text-gray-700">{profile.email}</td>
                       </tr>
-                      
                       <tr>
-                        <td className="p-2">
-                          <a href={fileUrl} target="_blank" rel="noreferrer" className="text-green-600 hover:text-green-700">
-                            Open First PDF
+                        <td className="py-2 px-3 font-medium text-gray-600">First PDF</td>
+                        <td className="py-2 px-3">
+                          <a href={fileUrl} target="_blank" rel="noreferrer" className="text-teal-600 hover:text-teal-800">
+                            Open PDF
                           </a>
                         </td>
                       </tr>
                     </tbody>
                   </table>
-
-                  {profileImg && (
-                    <div className="flex justify-center">
-                      <img src={profileImg} alt="Profile" className="w-40 h-40 object-cover rounded-full border-2 border-green-200 shadow-lg" />
-                    </div>
-                  )}
                 </div>
-              </div>
-            );
-          })
+              );
+            })}
+          </div>
         ) : (
           <div className="text-center text-gray-600">No profiles available.</div>
         )}

@@ -2,39 +2,49 @@
 
 import axios from 'axios';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation'; 
+import { useRouter } from 'next/navigation';
 
 const EmailReset = () => {
   const router = useRouter();
-  const [email, setEmail] = useState({
+  
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
   });
 
+const token = localStorage.getItem('admintokens')
+  
   const handlesubmit = async (e) => {
-    e.preventDefault();
-    const { name, email: emailValue } = email;
+    e.preventDefault(); 
 
-    if (!name || !emailValue) {
+    const { name, email } = formData;
+    console.log(formData)
+
+    if (!name || !email) {
       console.log('Data is required');
       return;
     }
 
     try {
-      const response = await axios.put('http://localhost:5005/api/reset-email', email);
+      const response = await axios.put('http://localhost:5005/api/reset-email', formData , {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+    });
       console.log(response.data);
       alert('Email has been reset');
-      router.push('/');
+      router.push('/'); 
     } catch (err) {
-      console.log('An error occurred', err);
+      console.log('An error occurred:', err.message || err);
     }
   };
 
   const handlechange = (e) => {
     const { name, value } = e.target;
-    setEmail({
-      ...email,
-      [name]: value,
+    setFormData({
+      ...formData, 
+      [name]: value, 
     });
   };
 
@@ -50,8 +60,8 @@ const EmailReset = () => {
               name="name"
               type="text"
               placeholder="Enter your name"
-              value={email.name}
-              onChange={handlechange}
+              value={formData.name} 
+              onChange={handlechange} 
               className="w-full p-3 rounded-lg border-2 border-green-200 focus:outline-none focus:ring-2 focus:ring-green-400"
               required
             />
@@ -63,8 +73,8 @@ const EmailReset = () => {
               name="email"
               type="email"
               placeholder="Enter your new email"
-              value={email.email}
-              onChange={handlechange}
+              value={formData.email} 
+              onChange={handlechange} 
               className="w-full p-3 rounded-lg border-2 border-green-200 focus:outline-none focus:ring-2 focus:ring-green-400"
               required
             />

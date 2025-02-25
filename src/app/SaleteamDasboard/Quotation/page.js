@@ -27,34 +27,38 @@ const QuotationWithMerge = () => {
 
   const handleGeneratepdf = async () => {
     setLoading(true);
-
+  
     // Make sure enqid is available before proceeding
     if (!enqid) {
       console.error("Enquiry ID is missing");
       setLoading(false);
       return;
     }
-
+  
+    // Fetch enquiries from localStorage
     const enquiries = JSON.parse(localStorage.getItem('enquiries')) || [];
+  
+    // Update the status of the specific enquiry without removing it
     const updatedEnquiries = enquiries.map((enquiry) => {
       if (enquiry.EnquiryNo === enqid) {
         return {
           ...enquiry,
-          status: 'Enquiry-3stage'
+          status: 'Enquiry-3stage'  // Update status
         };
       }
       return enquiry;
     });
-
+  
+    // Save the updated enquiries back to localStorage
     localStorage.setItem('enquiries', JSON.stringify(updatedEnquiries));
-
+  
     console.log('Sending data to the API:', {
       EnquiryNo: enqid,
       status: 'Enquiry-3stage',
     });
-
-const Token = localStorage.getItem('admintokens')
-
+  
+    const Token = localStorage.getItem('admintokens')
+  
     try {
       const response = await axios.put('http://localhost:5005/api/quotation', {
         EnquiryNo: enqid,
@@ -66,7 +70,6 @@ const Token = localStorage.getItem('admintokens')
         },
       });
       
-  
       // Handle the response
       if (!response.ok) {
         return response.json().then((err) => {
@@ -81,8 +84,9 @@ const Token = localStorage.getItem('admintokens')
       console.error('Error:', error.response ? error.response.data : error); // This will log the error message from the server
     }
     
-  
     setLoading(false);
+  
+  
   };
   const handleInputChange = (e, index) => {
     const { name, value } = e.target;

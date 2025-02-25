@@ -5,7 +5,8 @@ import { useState } from 'react';
 const SaleteamDasboard = () => {
   const router = useRouter();
 
-  const Viewalluserprofile = () => {
+  
+  const ViewallEmployeesProfile = () => {
     try {
       router.push('/admin/viewallprofile');    
     } catch (err) {
@@ -31,7 +32,7 @@ const SaleteamDasboard = () => {
 
   const resetpassword = () => {
     try {
-      router.push('/admin/restpassword');
+      router.push('/admin/passwordreset');
     } catch (err) {
       console.log('cannot go to the link', err);
     }
@@ -44,17 +45,17 @@ const SaleteamDasboard = () => {
 
         <div className="space-y-4">
           <button
-            onClick={Viewalluserprofile}
+            onClick={ViewallEmployeesProfile}
             className="w-full py-3 text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-300 ease-in-out transform hover:scale-105"
           >
-            View All Users Profile
+            View All Employees Profile
           </button>
           
           <button
             onClick={addusers}
             className="w-full py-3 text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-300 ease-in-out transform hover:scale-105"
           >
-            Add Users
+            Add Employees
           </button>
           
           <button

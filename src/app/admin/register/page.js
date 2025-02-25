@@ -160,6 +160,7 @@ const CommonRegi = () => {
                                 <option value="Sales Employee">SALE EMPLOYEE</option>
                                 <option value="Inventory Manager">INVENTORY MANAGER</option>
                                 <option value="Lead filler">LEAD MANAGER</option>
+
                             </select>
                         </div>
                     </div>

@@ -1,8 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";  
 
 const CompletedEnquiries = () => {
+  const router = useRouter();
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -45,6 +47,10 @@ const CompletedEnquiries = () => {
     }
   };
 
+ const handleClick = () => {
+  router.push('/SaleteamDasboard/SalesOrder')
+ }
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-100 to-green-300">
       <div className="w-full max-w-4xl p-8 space-y-6 bg-white rounded-xl shadow-2xl">
@@ -62,6 +68,7 @@ const CompletedEnquiries = () => {
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Client</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Status</th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Converted Status</th>
+                <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -71,6 +78,14 @@ const CompletedEnquiries = () => {
                   <td className="px-4 py-2 text-sm text-gray-700">{conversation.clientName}</td>
                   <td className="px-4 py-2 text-sm text-gray-700">{conversation.Status}</td>
                   <td className="px-4 py-2 text-sm text-gray-700">{conversation.Convertedstatus}</td>
+                  <td className="px-4 py-2 text-sm text-gray-700">
+                    <button
+                      onClick={() => handleClick(conversation.EnquiryNo)}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Sales Order
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -78,8 +93,6 @@ const CompletedEnquiries = () => {
         ) : (
           <p className="text-center text-gray-600">No conversations to display</p>
         )}
-
-       
       </div>
     </div>
   );

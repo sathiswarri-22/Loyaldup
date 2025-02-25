@@ -120,15 +120,22 @@ const Dashboard = () => {
         setEid(localStorage.getItem('idstore'));
     }, []);
 
-    const handleselectEnquiry = (EnquiryNo) => {
+    const handleSelectEnquiry = (EnquiryNo) => {
         console.log('Before update:', selectedEnquiries);
-        if (selectedEnquiries.includes(EnquiryNo)) {
-            setSelectedEnquiries(selectedEnquiries.filter((enquiry) => enquiry !== EnquiryNo));
-        } else {
-            setSelectedEnquiries([...selectedEnquiries, EnquiryNo]);
-        }
+    
+        setSelectedEnquiries((prevSelectedEnquiries) => {
+            if (prevSelectedEnquiries.includes(EnquiryNo)) {
+                // Remove from selected enquiries if already selected
+                return prevSelectedEnquiries.filter((enquiry) => enquiry !== EnquiryNo);
+            } else {
+                // Add to selected enquiries if not selected
+                return [...prevSelectedEnquiries, EnquiryNo];
+            }
+        });
+    
         console.log('After update:', selectedEnquiries);
     };
+    
     
     const handlesubmit = async (e) => {
         e.preventDefault();
@@ -233,6 +240,13 @@ const Dashboard = () => {
         }
     };
 
+
+    const handleEnquiryClick = (buttonType, EnquiryNo) => {
+        if (buttonType === 'enquiry') {
+            router.push(`/SaleteamDasboard/EnquiryStatus?EnquiryNo=${EnquiryNo}`);
+        }
+    };
+    
    
     
     
@@ -252,14 +266,6 @@ const Dashboard = () => {
         router.push('/SaleteamDasboard/Quotation');
     };
 
-    const Salesorder = () => {
-        router.push('/SaleteamDasboard/SalesOrder');
-    };
-
-    const perfoma = () => {
-        router.push('/SaleteamDasboard/perfoma');
-    };
-
     const customerconverted = () => {
         router.push('/SaleteamDasboard/CustomerConverted');
     };
@@ -267,6 +273,13 @@ const Dashboard = () => {
     const Inventory = () => {
         router.push('/SaleteamDasboard/Inventory');
     };
+    const viewleadenquiry = () =>{
+        try{
+             router.push('/SaleteamDasboard/Leadenquiryview');
+        }catch(err){
+            console.log('cannot goes to the link',err)
+        }
+    }
 
     return (
         <div className="bg-gray-50 min-h-screen p-8">
@@ -282,12 +295,22 @@ const Dashboard = () => {
                             View Profile
                         </button>
                         {role === "Lead filler" && (
+                            <>
                             <button
                                 onClick={EnterEnquiries}
                                 className="flex-1 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-300"
                             >
                                 Enter Enquiries
                             </button>
+                            <button 
+                            onClick={viewleadenquiry}
+                            className="flex-1 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-300"
+
+                            >
+                                ViewleadEnquires
+                            </button>
+                            </>
+                            
                         )}
                         <button
                             onClick={customerconverted}
@@ -347,12 +370,13 @@ const Dashboard = () => {
                                                     ? enquiryData.map((data) => (
                                                         <tr key={data._id} className="border-t border-green-200">
                                                             <td className="px-4 py-2">
-                                                                <input
-                                                                    type="checkbox"
-                                                                    checked={selectedEnquiries.includes(data.EnquiryNo)}
-                                                                    onChange={() => handleSelectEnquiry(data.EnquiryNo)}
-                                                                    className="mx-auto"
-                                                                />
+                                                            <input
+    type="checkbox"
+    checked={selectedEnquiries.includes(data.EnquiryNo)}  
+    onChange={() => handleSelectEnquiry(data.EnquiryNo)}
+    className="mx-auto"
+/>
+
                                                             </td>
                                                             <td className="px-4 py-2">{data?.LeadDetails?.companyName || "N/A"}</td>
                                                             <td className="px-4 py-2">{data?.LeadDetails?.clientName || "N/A"}</td>
@@ -380,6 +404,15 @@ const Dashboard = () => {
 >
     Quotation
 </button>
+<td className="px-4 py-2">
+    <button
+        onClick={() => handleEnquiryClick('enquiry', data.EnquiryNo)} 
+        className="px-4 py-2 rounded-md transition duration-300 ml-2 bg-blue-600 hover:bg-blue-700"
+    >
+        View Status
+    </button>
+</td>
+
 
                                                                
                                                             </td>

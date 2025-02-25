@@ -22,20 +22,19 @@ export default function Home() {
 
     try {
       const response = await axios.post('http://localhost:5005/api/login', user);
-      const { token, role, Eid, name } = response.data;
+      const { token, role, Eid } = response.data;
 
       if (token && role) {
         localStorage.setItem('admintokens', token);
         localStorage.setItem('idstore', Eid);
         localStorage.setItem('role',role);
-        localStorage.setItem('name',name)
 
         alert('Login successful');
 
        
         if (role === "md") {
           router.push('/admin/adminDasboard');
-        } else if(role ==="Service Engineer" || role === "Engineer") {
+        } else if(role === "Service Engineer"|| role === "Engineer") {
           router.push('/Serviceproject/Dasboard');
         }else {
           router.push('/SaleteamDasboard/Dasboard');
@@ -67,10 +66,8 @@ export default function Home() {
 
   const handlePasswordReset = (e) => {
     e.preventDefault();
-    router.push('admin/passwordreset');
+    router.push('/admin/restpassword');
   };
-  
-  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-100 to-green-300">
@@ -122,6 +119,7 @@ export default function Home() {
         </form>
 
         <div className="text-center">
+        
           <button 
             onClick={handlePasswordReset}
             className="flex items-center justify-center w-full py-2 text-green-600 bg-green-100 rounded-lg hover:bg-green-200 transition duration-300"
