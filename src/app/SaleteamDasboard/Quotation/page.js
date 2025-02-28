@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { PDFDocument, rgb } from "pdf-lib";
 import axios from "axios";
 import { useSearchParams } from 'next/navigation';
+import { useRouter } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 
 const QuotationWithMerge = () => {
   const [rows, setRows] = useState([
@@ -19,6 +21,7 @@ const QuotationWithMerge = () => {
 
   const searchParams = useSearchParams();
   const enqid = searchParams.get('EnquiryNo'); // Fetch Enquiry ID directly from query params
+  const router = useRouter();
 
   const [daysForPayment, setDaysForPayment] = useState(30);
   const [daysForValidity, setDaysForValidity] = useState(30);
@@ -268,11 +271,21 @@ const QuotationWithMerge = () => {
     }
   };
 
+  const handleButtonClick = () => {
+    router.push('/SaleteamDasboard/Dasboard')
+  }
+
   return (
     <div className="bg-gray-50 min-h-screen p-8">
       <div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-3xl font-semibold text-center text-green-600 mb-6">Quotation Form</h2>
+      <button onClick={handleButtonClick}
+                              className="p-3 bg-white text-black rounded-full shadow-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+>
+        <ChevronLeft size={24} />
+        </button>
 
+        <h2 className="text-3xl font-semibold text-center text-green-600 mb-6">Quotation Form</h2>
+       
         {/* Table Form */}
         <div className="space-y-6">
           <h3 className="text-xl font-semibold text-gray-700">Add Product Details {enqid}</h3>

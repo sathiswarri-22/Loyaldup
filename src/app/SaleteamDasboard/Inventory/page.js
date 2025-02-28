@@ -2,6 +2,8 @@
 
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
+import { ChevronLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -17,6 +19,7 @@ const ProductList = () => {
 
   const [editMode, setEditMode] = useState(null);
   const [editedProduct, setEditedProduct] = useState({});
+  const router = useRouter();
   
   // Fetch products
   const fetchProducts = async () => {
@@ -123,10 +126,21 @@ const ProductList = () => {
     }
   };
 
+  const handleBackClick = () => {
+    router.push('/SaleteamDasboard/Dasboard');  
+};
+ 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-teal-100 to-teal-300">
       <div className="w-full max-w-7xl p-8 space-y-6 bg-white rounded-lg shadow-lg">
         <h2 className="text-3xl font-semibold text-teal-700 mb-6">Inventory</h2>
+        <button 
+                    onClick={handleBackClick}
+                    className="p-3 bg-white text-black rounded-full shadow-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    >
+                    <ChevronLeft size={24} />
+                </button>
+
 
         <div className="overflow-x-auto shadow-lg border border-gray-200 rounded-lg">
           <table className="min-w-full bg-white">

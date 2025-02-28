@@ -1,65 +1,99 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import axios from "axios";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 
 const CustomerNotConverted = () => {
-  const [leadNumber, setLeadNumber] = useState("");
-  const [remarks, setRemarks] = useState("");
+  const [leadNumber, setLeadNumber] = useState('');
+  const [remarks, setRemarks] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
-  const [Eid, setEid] = useState("");  
-  const [token, setToken] = useState("");  
+  const [token, setToken] = useState("");
+
+  const searchParams = useSearchParams();
+  const EnquiryNo = searchParams.get('EnquiryNo');
+  const router = useRouter();
+  console.log(EnquiryNo);
 
   useEffect(() => {
-    const notConverted = async () => {
-      if (!Eid) {
-        setError("Eid is not available.");
-        return;
-      }
+    const savedToken = localStorage.getItem("admintokens");
+    if (savedToken) {
+      setToken(savedToken);
+    } else {
+      console.error("Token not found in localStorage.");
+    }
 
-      try {
-        console.log('Making API call with Eid:', Eid, 'Token:', token);
-        const response = await axios.post(
-          `http://localhost:5005/api/customernotconverted`,
-          { leadNumber, remarks },
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            }
-          }
-        );
-        console.log(response.data.notConverted);
-        setLeadNumber(response.data.notConverted);
-      } catch (err) {
-        console.error('Error fetching customer data:', err.response || err);
-        setError("Failed to fetch customer data.");
-      }
-    };
+    if (EnquiryNo) {
+      setLeadNumber(EnquiryNo);
+    }
+  }, [EnquiryNo]);
 
-    notConverted();  // Call the function inside useEffect
-  }, [Eid, token]);  // Dependency array to ensure it runs when Eid or token change
-
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    setSubmitted(true);
+
+    if (!token) {
+      setError("No token found. Please log in.");
+      return;
+    }
+
+    if (!leadNumber || !remarks) {
+      setError("Lead number and remarks are required.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `http://localhost:5005/api/customernotconverted`,
+        { EnquiryNo: leadNumber, remarks },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+
+      console.log(response.data);
+      setSubmitted(true);
+      setError(null);
+    } catch (err) {
+      console.error('Error submitting lead:', err);
+      if (err.response && err.response.status === 403) {
+        setError("Access denied. Invalid or expired token.");
+      } else {
+        setError("Failed to submit lead.");
+      }
+    }
   };
+
+  const handleBackClick = () => {
+    router.push('/SaleteamDasboard/Dasboard')
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-100 to-green-300">
       <div className="w-full max-w-lg p-8 space-y-6 bg-white rounded-xl shadow-2xl">
+        <button onClick={handleBackClick}
+        className="p-3 bg-white text-black rounded-full shadow-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+>
+                  <ChevronLeft size={24} />
+        </button>
         <h1 className="text-2xl font-bold text-center">Lead Form</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error && <p className="text-red-500 text-center">{error}</p>} {/* Display errors */}
+          {submitted && <p className="text-green-500 text-center">Lead submitted successfully!</p>} {/* Success message */}
+
           <div className="space-y-2">
             <label htmlFor="leadNumber" className="font-medium text-gray-700">Lead Number</label>
             <input
               type="text"
               id="leadNumber"
               value={leadNumber}
-              onChange={(e) => setLeadNumber(e.target.value)}
               className="w-full p-2 border-2 border-red-200 rounded-lg"
+              readOnly
               required
             />
           </div>
@@ -79,8 +113,6 @@ const CustomerNotConverted = () => {
             Submit
           </button>
         </form>
-
-       
       </div>
     </div>
   );

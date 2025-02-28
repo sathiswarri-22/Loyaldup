@@ -2,10 +2,13 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 
 const EnquiryStatus = () => {
   const [enquiryData, setEnquiryData] = useState(null);
   const [error, setError] = useState(null);
+  const router = useRouter();
 
   const searchParams = useSearchParams();
   const EnquiryNo = searchParams.get('EnquiryNo');  
@@ -42,9 +45,18 @@ const EnquiryStatus = () => {
   if (error) return <div className="text-red-500 text-center mt-10">{error}</div>;
   if (!enquiryData) return <div className="text-center mt-10">Loading...</div>;
 
+  const handleBackClick = () => {
+    router.push('/SaleteamDasboard/Dasboard')
+  }
+
   return (
     <div className="bg-gray-100 min-h-screen py-10">
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
+        <button onClick={handleBackClick}
+        className="p-3 bg-white text-black rounded-full shadow-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+>
+                  <ChevronLeft size={24} />
+        </button>
         <h1 className="text-3xl font-semibold text-center text-gray-800 mb-8">
           Enquiry Status for {enquiryData.EnquiryNo}
         </h1>

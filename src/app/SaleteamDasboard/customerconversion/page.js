@@ -1,13 +1,21 @@
 "use client";
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { ChevronLeft } from 'lucide-react';
 
 const CustomerConversion = () => {
   const token = localStorage.getItem('admintokens');
   const Eid = localStorage.getItem('idstore');
+  const searchParams = useSearchParams();
   
+const EnquiryNo = searchParams.get('EnquiryNo')
+console.log('Fetching EnquiryNo:', EnquiryNo);
+
+
   const [customer, setCustomer] = useState({
-    EnquiryNo: '',
+    EnquiryNo: EnquiryNo || '',
     PANnumber: '',
     GSTNnumber: '',
     CustomerDetails: {
@@ -21,7 +29,6 @@ const CustomerConversion = () => {
       BillingState: ''
     },
     DescriptionDetails: '',
-    Convertedstatus: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -32,6 +39,7 @@ const CustomerConversion = () => {
   const [isEditing, setIsEditing] = useState(false);  
   const [update,setUpdate] = useState(null);
   const [ updateId,setUpdateId] =useState(null);
+  const router = useRouter();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -160,7 +168,7 @@ const handlecustomerchange = (e)=>{
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!customer.EnquiryNo || !customer.PANnumber || !customer.GSTNnumber || !customer.Convertedstatus) {
+    if (!customer.EnquiryNo || !customer.PANnumber || !customer.GSTNnumber ) {
       setError("Please fill in all required fields.");
       return;
     }
@@ -179,7 +187,7 @@ const handlecustomerchange = (e)=>{
     setSuccess(null);
 
     try {
-      const response = await axios.post('http://localhost:5005/api/cc/customerconvert', { Eid, ...customer }, {
+      const response = await axios.post('http://localhost:5005/api/customerconversion', { Eid, ...customer }, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -216,10 +224,19 @@ const handlecustomerchange = (e)=>{
         console.log("i cannot get the enquiryno and customerid",err.message);
     }
   }
+
+const handleBackClick = () => {
+  router.push('/SaleteamDasboard/Dasboard')
+}
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-blue-300">
     <div className="w-full max-w-4xl p-8 space-y-6 bg-white rounded-xl shadow-2xl">
-      
+      <button onClick={handleBackClick}
+      className="p-3 bg-white text-black rounded-full shadow-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+>
+        <ChevronLeft size={24} />
+        </button>
       <h1 className="text-3xl font-semibold text-center text-blue-600 mb-6">Customer Conversion Form</h1>
       
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -231,7 +248,7 @@ const handlecustomerchange = (e)=>{
             value={customer.EnquiryNo}
             onChange={handleChange}
             required
-            className="w-full p-3 border border-gray-300 rounded-md"
+            className="w-full p-3 border border-gray-300 rounded-md"readOnly
           />
         </div>
         
@@ -335,21 +352,7 @@ const handlecustomerchange = (e)=>{
           />
         </div>
         
-        <div>
-          <label className="block text-lg font-medium text-gray-700">Lead Converted?</label>
-          <select
-            name="Convertedstatus"
-            value={customer.Convertedstatus}
-            onChange={handleChange}
-            required
-            className="w-full p-3 border border-gray-300 rounded-md"
-          >
-            <option value="">Select</option>
-            <option value="yes">YES</option>
-            <option value="no">NO</option>
-          </select>
-        </div>
-  
+       
         <button
           type="submit"
           disabled={loading}

@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
+import { useRouter } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 
 const Salesorder = () => {
   const [formData, setFormData] = useState({
@@ -47,6 +49,7 @@ const Salesorder = () => {
   const [token, setToken] = useState("");
   const [products , setProducts ] = useState([]);
   const [ selectedProducts , setSelectedProducts ] = useState(""); 
+  const router = useRouter();
 
   useEffect(() => {
     const storedToken = localStorage.getItem("admintokens");
@@ -247,8 +250,15 @@ const Salesorder = () => {
     }
   };
 
+  const handleBackClick = () => {
+    router.push('/SaleteamDasboard/Dasboard')
+  }
+
   return (
     <div className="container mx-auto p-6 bg-white shadow-xl rounded-lg">
+      <button onClick={handleBackClick}>
+      <ChevronLeft size={24} />
+      </button>
       <h1 className="text-4xl font-bold text-center text-indigo-600 mb-6">Create Sales Order</h1>
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Sales Order Details */}

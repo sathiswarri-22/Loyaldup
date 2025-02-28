@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";  
+import { ChevronLeft } from "lucide-react";
 
 const CompletedEnquiries = () => {
   const router = useRouter();
@@ -51,10 +52,20 @@ const CompletedEnquiries = () => {
   router.push('/SaleteamDasboard/SalesOrder')
  }
 
+ const handleBackClick = () => {
+  router.push('/SaleteamDasboard/Dasboard');  
+};
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-100 to-green-300">
       <div className="w-full max-w-4xl p-8 space-y-6 bg-white rounded-xl shadow-2xl">
         <h1 className="text-4xl font-bold text-center text-green-600">Completed Enquiries</h1>
+        <button 
+                    onClick={handleBackClick}
+                    className="p-3 bg-white text-black rounded-full shadow-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    >
+                    <ChevronLeft size={24} />
+                </button>
 
         {loading && <p className="text-center text-green-600">Loading...</p>} 
 

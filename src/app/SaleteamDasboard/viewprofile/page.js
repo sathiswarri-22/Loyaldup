@@ -1,7 +1,8 @@
-"use client"
+"use client";
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Mail, User, File } from 'lucide-react';
+import { Mail, User, File, ChevronLeft } from 'lucide-react';  
+import { useRouter } from 'next/navigation';  
 
 const ProfileView = () => {
     const [Eid, setEid] = useState(localStorage.getItem('idstore'));
@@ -13,8 +14,8 @@ const ProfileView = () => {
         profileimg: ''
     });
 
+    const router = useRouter();  // Initialize the useRouter hook
 
-    
     useEffect(() => {
         if (!token) {
             alert("No token found. Please login as an admin.");
@@ -49,9 +50,21 @@ const ProfileView = () => {
 
     const fileUploadUrl = profileData.Fileupload ? `http://localhost:5005/api/uploads/${profileData.profileimg}` : '';
 
+    const handleBackClick = () => {
+        router.push('/SaleteamDasboard/Dasboard');  
+    };
+
     return (
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-100 to-green-300 py-10">
-            <div className="w-full max-w-lg p-10 space-y-8 bg-white rounded-3xl shadow-2xl">
+            <div className="w-full max-w-lg p-10 space-y-8 bg-white rounded-3xl shadow-2xl relative">
+                {/* Back Button */}
+                <button 
+                    onClick={handleBackClick}
+                    className="p-3 bg-white text-black rounded-full shadow-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    >
+                    <ChevronLeft size={30} />
+                </button>
+
                 <h1 className="text-5xl font-bold text-center text-green-600 mb-6">Profile</h1>
 
                 <div className="space-y-6">

@@ -36,7 +36,7 @@ const ViewleadEnquiryPage = () => {
   };
 
   useEffect(() => {
-    if (role === "Lead filler") {
+    if (role === "Lead filler" || "md") {
       fetchLeadEnquiryList();
     } else {
       setError("You do not have permission to view the data.");
