@@ -40,6 +40,10 @@ router.push('/admin/resetemail')
     router.push('/admin/No')
   };
 
+  const handleLeadEnquiry = () => {
+    router.push('/admin/AllLeadEnquiry')
+  };
+
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-teal-100 to-teal-300">
@@ -78,6 +82,12 @@ router.push('/admin/resetemail')
             className="py-3 text-white bg-teal-600 rounded-lg shadow-md hover:bg-teal-700 transition duration-300 ease-in-out transform hover:scale-105"
           >
             Today Not Converted Customer
+          </button>
+          <button
+            onClick={handleLeadEnquiry}
+            className="py-3 text-white bg-teal-600 rounded-lg shadow-md hover:bg-teal-700 transition duration-300 ease-in-out transform hover:scale-105"
+          >
+            All Lead Enquiry
           </button>
         </div>
 

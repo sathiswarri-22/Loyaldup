@@ -49,8 +49,9 @@ LOYALTY AUTOMATION PVT LTD
           )}
 
           {/* Main content area */}
-          <main className="mt-[60px]"> {/* Add margin top to prevent content from being hidden behind the fixed top bar */}
-            {children}
+          <main className=""> {/* Add margin top to prevent content from being hidden behind the fixed top bar */}
+          {!hideDivOnPage && (<div className="h-[60px]">
+            </div>)} {children}
           </main>
         </div>
       </body>

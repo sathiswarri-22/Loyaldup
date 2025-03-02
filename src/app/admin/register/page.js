@@ -1,8 +1,11 @@
 "use client";
 import axios from "axios";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 
 const CommonRegi = () => {
+    const router = useRouter();
     const [user, setUser] = useState({
         name: '',
         email: '',
@@ -18,6 +21,7 @@ const CommonRegi = () => {
         Fileupload: '',
         profileimg: ''
     });
+
 
     const handlesubmit = async (e) => {
         e.preventDefault();
@@ -94,11 +98,20 @@ const CommonRegi = () => {
         });
     };
 
+    const handleBackClick = () => {
+        router.push('/admin/adminDasboard')
+      }
+
     return (
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-teal-100 to-teal-300">
-            <div className="w-full max-w-4xl p-8 space-y-6 bg-white rounded-xl shadow-2xl">
-                <div className="text-center mb-8">
-                    <h1 className="text-4xl font-semibold text-teal-700">Welcome Admin</h1>
+        <div className="w-full max-w-4xl p-8 space-y-6 bg-white rounded-xl shadow-2xl">
+            <div className="relative text-center mb-8">
+                <button 
+                    onClick={handleBackClick}
+                    className="absolute left-0 p-3 bg-white text-black rounded-full shadow-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                    <ChevronLeft size={24} />
+                </button>
                     <h2 className="text-2xl text-gray-700">Registration Page</h2>
                 </div>
 
@@ -160,6 +173,8 @@ const CommonRegi = () => {
                                 <option value="Sales Employee">SALE EMPLOYEE</option>
                                 <option value="Inventory Manager">INVENTORY MANAGER</option>
                                 <option value="Lead filler">LEAD MANAGER</option>
+                                <option value="Stock Filler">STOCK FILLER</option>
+
                             </select>
                         </div>
                     </div>

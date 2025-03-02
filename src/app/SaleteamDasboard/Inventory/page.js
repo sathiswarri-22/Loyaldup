@@ -20,6 +20,8 @@ const ProductList = () => {
   const [editMode, setEditMode] = useState(null);
   const [editedProduct, setEditedProduct] = useState({});
   const router = useRouter();
+  const token = localStorage.getItem('admintokens')
+  const role = localStorage.getItem('role');
   
   // Fetch products
   const fetchProducts = async () => {
@@ -48,13 +50,21 @@ const ProductList = () => {
           Current: parseInt(existingProduct.Inward) + parseInt(newProduct.Inward) || 0, 
         };
 
-        const response = await axios.put(`http://localhost:5005/api-Inventory/update/${existingProduct._id}`, updatedProduct);
+        const response = await axios.put(`http://localhost:5005/api-Inventory/update/${existingProduct._id}`, updatedProduct ,{
+          headers : {
+            Authorization : `Bearer ${token}`
+          }
+        });
 
         setProducts(products.map((product) =>
           product._id === existingProduct._id ? { ...product, ...updatedProduct } : product
         ));
       } else {
-        const response = await axios.post('http://localhost:5005/api-inventory/add-product', newProduct);
+        const response = await axios.post('http://localhost:5005/api-inventory/add-product', newProduct , {
+          headers : {
+            Authorization : `Bearer ${token}`
+          }
+        });
         setProducts([...products, response.data]);
       }
         fetchProducts()
@@ -101,7 +111,11 @@ const ProductList = () => {
 
   const handleSaveEdit = async (id) => {
     try {
-      const response = await axios.put(`http://localhost:5005/api-Inventory/update/${id}`, editedProduct);
+      const response = await axios.put(`http://localhost:5005/api-Inventory/update/${id}`, editedProduct ,{
+        headers : {
+          Authorization : `Bearer ${token}`
+        }
+      });
       setProducts(products.map((product) =>
         product._id === id ? { ...product, ...editedProduct } : product
       ));
@@ -119,7 +133,11 @@ const ProductList = () => {
 
   const deleteProduct = async (id) => {
     try {
-      await axios.delete(`http://localhost:5005/api-Inventory/delete/${id}`);
+      await axios.delete(`http://localhost:5005/api-Inventory/delete/${id}`,{
+        headers : {
+          Authorization : `Bearer ${token}`
+        }
+      });
       setProducts(products.filter((product) => product._id !== id));
     } catch (error) {
       console.error('Error deleting product:', error);
@@ -140,7 +158,6 @@ const ProductList = () => {
                     >
                     <ChevronLeft size={24} />
                 </button>
-
 
         <div className="overflow-x-auto shadow-lg border border-gray-200 rounded-lg">
           <table className="min-w-full bg-white">
@@ -166,7 +183,9 @@ const ProductList = () => {
                 <td><input className="w-full p-2 border border-gray-300 rounded" type="number" name="Outward" value={newProduct.Outward} onChange={handleInputChange} /></td>
                 <td><input className="w-full p-2 border border-gray-300 rounded" type="number" name="Current" value={newProduct.Current} readOnly /></td>
                 <td>
-                  <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={handleAddProduct}>Add Product</button>
+                  {role === 'Stock Filler' && (
+                    <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={handleAddProduct}>Add Product</button>
+                  )}
                 </td>
               </tr>
 
@@ -208,12 +227,16 @@ const ProductList = () => {
                     product.Current
                   )}</td>
                   <td className="flex space-x-2">
-                    {editMode === product._id ? (
+                    {editMode === product._id && role === 'Stock Filler' ? (
                       <button className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600" onClick={() => handleSaveEdit(product._id)}>Save</button>
                     ) : (
-                      <button className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600" onClick={() => handleEdit(product)}>Edit</button>
+                      role === 'Stock Filler' && (
+                        <button className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600" onClick={() => handleEdit(product)}>Edit</button>
+                      )
                     )}
-                    <button className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600" onClick={() => deleteProduct(product._id)}>Delete</button>
+                    {role === 'Stock Filler' && (
+                      <button className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600" onClick={() => deleteProduct(product._id)}>Delete</button>
+                    )}
                   </td>
                 </tr>
               ))}

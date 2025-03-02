@@ -3,6 +3,7 @@
 import axios from 'axios';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { ChevronLeft } from 'lucide-react';
 
 const EmailReset = () => {
   const router = useRouter();
@@ -48,10 +49,20 @@ const token = localStorage.getItem('admintokens')
     });
   };
 
+  const handleBackClick = () => {
+    router.push('/admin/adminDasboard')
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-100 to-green-300">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-2xl">
         <h1 className="text-4xl font-bold text-center text-green-600">Reset Email</h1>
+         <button 
+                            onClick={handleBackClick}
+                            className="p-3 bg-white text-black rounded-full shadow-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+                            >
+                            <ChevronLeft size={24} />
+                        </button>
 
         <form onSubmit={handlesubmit} className="space-y-4">
           <div className="relative">
