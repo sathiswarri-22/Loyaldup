@@ -272,7 +272,7 @@ const handleSelectEnquiry = (EnquiryNo) => {
     };
 
     const CustomerNotConverted = () => {
-        router.push('/SaleteamDasboard/CustomerNotConverted');
+        router.push('/SaleteamDasboard/Cnc');
     };
 
 
