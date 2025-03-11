@@ -67,33 +67,42 @@ const Salesorder = () => {
   fetchProducts();
 },[]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    const [section, field] = name.split("."); // Split to handle nested fields
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  const [section, field] = name.split("."); // Split to handle nested fields
 
-    if (section === "salesOrderDetails") {
-      setFormData((prevData) => ({
-        ...prevData,
-        salesOrderDetails: {
-          ...prevData.salesOrderDetails,
-          [field]: value, // Update the specific field
-        },
-      }));
-    } else if (section === "summary") {
-      setFormData((prevData) => ({
-        ...prevData,
-        summary: {
-          ...prevData.summary,
-          [field]: value,
-        },
-      }));
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
-    }
-  };
+  if (section === "salesOrderDetails") {
+    setFormData((prevData) => ({
+      ...prevData,
+      salesOrderDetails: {
+        ...prevData.salesOrderDetails,
+        [field]: value, // Update the specific field
+      },
+    }));
+  } else if (section === "summary") {
+    setFormData((prevData) => ({
+      ...prevData,
+      summary: {
+        ...prevData.summary,
+        [field]: value,
+      },
+    }));
+  } else if (section === "termsAndConditions") {
+    setFormData((prevData) => ({
+      ...prevData,
+      termsAndConditions: {
+        ...prevData.termsAndConditions,
+        [field]: value, // Update the text field
+      },
+    }));
+  } else {
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  }
+};
+
 
   const handleNestedChange = (e, index, field) => {
     const { value } = e.target;
@@ -291,17 +300,17 @@ const Salesorder = () => {
           </div>
         </section>
 
-        {/* Terms and Conditions */}
         <section className="space-y-4">
-          <h3 className="text-2xl font-semibold text-gray-800">Terms and Conditions</h3>
-          <textarea
-            name="termsAndConditions.text"
-            value={formData.termsAndConditions.text}
-            onChange={handleChange}
-            className="mt-1 block w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            rows="4"
-          />
-        </section>
+  <h3 className="text-2xl font-semibold text-gray-800">Terms and Conditions</h3>
+  <textarea
+    name="termsAndConditions.text"
+    value={formData.termsAndConditions.text} // Bind to formData correctly
+    onChange={handleChange} // Make sure handleChange is updating this value
+    className="mt-1 block w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+    rows="4"
+  />
+</section>
+
 
         <section className="space-y-4">
           <h3 className="text-2xl font-semibold text-gray-800">Items</h3>
