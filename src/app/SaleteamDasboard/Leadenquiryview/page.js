@@ -18,7 +18,7 @@ const ViewleadEnquiryPage = () => {
 
   const fetchLeadEnquiryList = async () => {
     try {
-      const response = await axios.get('http://localhost:5005/api/todayviewleadenquiry', {
+      const response = await axios.get('https://loyality.chennaisunday.com/api/todayviewleadenquiry', {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",

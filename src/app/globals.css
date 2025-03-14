@@ -14,8 +14,22 @@
   }
 }
 
+/* Ensure scrolling is enabled */
+html, body {
+  height: 100%;
+  overflow-y: auto; /* Enables vertical scrolling */
+  overflow-x: hidden; /* Prevents horizontal scrolling */
+  scroll-behavior: smooth;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Ensure main content can scroll */
+main {
+  flex-grow: 1;
+  overflow-y: auto;
 }

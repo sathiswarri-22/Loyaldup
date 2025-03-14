@@ -21,7 +21,7 @@ const AllLeadEnquiry = () => {
       console.log("Requesting data with fromDate:", fromDate, "toDate:", toDate);
 
       // Make the request with fromDate and toDate as query parameters
-      const response = await axios.get('http://localhost:5005/api/alldayleadenquiry', {
+      const response = await axios.get('https://loyality.chennaisunday.com/api/alldayleadenquiry', {
         params: {
           fromDate,
           toDate

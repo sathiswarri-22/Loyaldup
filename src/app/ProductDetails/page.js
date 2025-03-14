@@ -7,7 +7,7 @@ const Getproduct = () => {
 
   const fetchProduct = async () => {
     try {
-      const response = await axios.get("http://localhost:5005/api/getproductslist", {
+      const response = await axios.get("https://loyality.chennaisunday.com/api/getproductslist", {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -40,7 +40,7 @@ const Getproduct = () => {
               <div className="relative group">
                 {product.productimage ? (
                   <img
-                    src={`http://localhost:5005/api/uploads/${product.productimage}`}
+                    src={`https://loyality.chennaisunday.com/api/uploads/${product.productimage}`}
                     alt={product.title}
                     className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                   />

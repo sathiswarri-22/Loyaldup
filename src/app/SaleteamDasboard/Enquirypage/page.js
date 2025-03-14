@@ -42,7 +42,7 @@ const SaleheadEnquiry = () => {
           alert("No token found. Please login as an admin.");
           return;
         }
-        const response = await axios.get('http://localhost:5005/api/getsalesheadEid', {
+        const response = await axios.get('https://loyality.chennaisunday.com/api/getsalesheadEid', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ const SaleheadEnquiry = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5005/api/leadentry', enquiry, {
+      const response = await axios.post('https://loyality.chennaisunday.com/api/leadentry', enquiry, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',

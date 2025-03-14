@@ -63,7 +63,7 @@ const QuotationWithMerge = () => {
     const Token = localStorage.getItem('admintokens')
   
     try {
-      const response = await axios.put('http://localhost:5005/api/quotation', {
+      const response = await axios.put('https://loyality.chennaisunday.com/api/quotation', {
         EnquiryNo: enqid,
         status: 'Enquiry-3stage',
       }, {

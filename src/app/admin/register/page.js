@@ -48,7 +48,7 @@ const CommonRegi = () => {
                 }
             });
 
-            const response = await axios.post('http://localhost:5005/api/registration', formData, {
+            const response = await axios.post('https://loyality.chennaisunday.com/api/registration', formData, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data',

@@ -50,7 +50,7 @@ const Workvisit = () => {
       formData.append("Description", Description);
       formData.append("File", File);
 
-      const response = await axios.post('http://localhost:5005/api/service&project', formData, {
+      const response = await axios.post('https://loyality.chennaisunday.com/api/service&project', formData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',

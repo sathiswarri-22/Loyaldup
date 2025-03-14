@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect,Suspense } from "react";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -21,7 +21,7 @@ const EnquiryStatus = () => {
       try {
         const token = localStorage.getItem('admintokens')
         console.log('Fetching enquiry status for EnquiryNo:', EnquiryNo);
-        const response = await axios.get(`http://localhost:5005/api/Enquirystatus/${EnquiryNo}`, {
+        const response = await axios.get(`https://loyality.chennaisunday.com/api/Enquirystatus/${EnquiryNo}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -50,6 +50,7 @@ const EnquiryStatus = () => {
   }
 
   return (
+    <Suspense fallback={<div>Loading...</div>}>
     <div className="bg-gray-100 min-h-screen py-10">
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-6">
         <button onClick={handleBackClick}
@@ -92,7 +93,7 @@ const EnquiryStatus = () => {
           </div>
         )}
       </div>
-    </div>
+    </div></Suspense>
   );
 };
 

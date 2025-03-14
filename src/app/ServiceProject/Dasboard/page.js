@@ -15,16 +15,21 @@ const Dashboard = () => {
     const router = useRouter();
 
     useEffect(() => {
-        const storedToken = localStorage.getItem('admintokens');
-        const storedEid = localStorage.getItem('idstore');
-        const storedName = localStorage.getItem('name');
-        const storedEmail = localStorage.getItem('email')
-        setToken(storedToken);
-        setEid(storedEid);
-        setName(storedName);
-        setEmail(storedEmail);
-        console.log(storedName)
-    }, []);
+        if (typeof window !== "undefined") {
+          const storedToken = localStorage.getItem('admintokens');
+          const storedEid = localStorage.getItem('idstore');
+          const storedName = localStorage.getItem('name');
+          const storedEmail = localStorage.getItem('email');
+    
+          setToken(storedToken);
+          setEid(storedEid);
+          setName(storedName);
+          setEmail(storedEmail);
+    
+          console.log(storedName);
+        }
+      }, []);
+    
 
     useEffect(() => {
         if (!token || !Eid) return;
@@ -32,7 +37,7 @@ const Dashboard = () => {
             try {
                 setLoading(true);
                 const response = await axios.get(
-                    `http://localhost:5005/api/getenquiryforsaletam/${Eid}`,
+                    `https://loyality.chennaisunday.com/api/getenquiryforsaletam/${Eid}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,

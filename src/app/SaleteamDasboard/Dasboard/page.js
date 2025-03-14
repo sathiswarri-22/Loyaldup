@@ -41,7 +41,7 @@ const Dashboard = () => {
     // Fetch Sales Employee List
   const fetchSalesEmployeeList = async () => {
     try {
-      const response = await axios.get("http://localhost:5005/api/getsalesemployeeEid", {
+      const response = await axios.get("https://loyality.chennaisunday.com/api/getsalesemployeeEid", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -59,7 +59,7 @@ const Dashboard = () => {
   // Fetch Other Employees List
   const fetchOtherEmployees = async () => {
     try {
-      const response = await axios.get("http://localhost:5005/api/getotheremployeeEid", {
+      const response = await axios.get("https://loyality.chennaisunday.com/api/getotheremployeeEid", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -80,14 +80,14 @@ const Dashboard = () => {
         setLoading(true);
         const response =
             role === "sales head"
-                ? await axios.get('http://localhost:5005/api/headenquiry', {
+                ? await axios.get('https://loyality.chennaisunday.com/api/headenquiry', {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         "Content-Type": "application/json",
                     },
                 })
                 : await axios.get(
-                    `http://localhost:5005/api/getenquiryforsaletam/${Eid}`,
+                    `https://loyality.chennaisunday.com/api/getenquiryforsaletam/${Eid}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -168,7 +168,7 @@ const handleSelectEnquiry = (EnquiryNo) => {
             if (selectedEnquiries.length === 0) return alert("Please select at least one enquiry.");
 
             const response = await axios.put(
-                `http://localhost:5005/api/assignedto`,
+                `https://loyality.chennaisunday.com/api/assignedto`,
                 {
                     Eid: EidToAssign,
                     EnquiryNo: selectedEnquiries,
@@ -202,7 +202,7 @@ const handleSelectEnquiry = (EnquiryNo) => {
         try {
           // API call to assign service to the selected enquiries
           const response = await axios.put(
-            "http://localhost:5005/api/assignedtoservice",
+            "https://loyality.chennaisunday.com/api/assignedtoservice",
             {
               Eid: EidToAssign,
               EnquiryNo: selectEnquiry, // Send selected enquiries for service assignment

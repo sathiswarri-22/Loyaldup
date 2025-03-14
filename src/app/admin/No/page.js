@@ -7,11 +7,14 @@ import { useRouter } from 'next/navigation';
 const TodayView = () => {
   const router = useRouter();
   const [enquiries, setEnquiries] = useState([]);
-  const token = localStorage.getItem('admintokens');
-
+  const [token, setToken] = useState("")
+  if (typeof window !== "undefined") {
+    const storedToken = localStorage.getItem("admintokens");
+    setToken(storedToken);
+  }
   const fetchEnquiries = async () => {
     try {
-      const response = await axios.get('http://localhost:5005/api/cc/todayviewnocustomer', {
+      const response = await axios.get('https://loyality.chennaisunday.com/api/cc/todayviewnocustomer', {
         headers: {
           Authorization: `Bearer ${token}`,
         },

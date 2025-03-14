@@ -10,9 +10,14 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("profiles");
   const [activeContent, setActiveContent] = useState(null);
   const router = useRouter();
-  const token = localStorage.getItem("admintokens");
-  const role = localStorage.getItem("role");
-  
+  const [token, setToken] = useState("")
+  const [role, setRole] = useState("")
+  if (typeof window !== "undefined") {
+    const storedToken = localStorage.getItem("admintokens");
+    const role = localStorage.getItem("role");
+    setRole(role);
+    setToken(storedToken);
+  }  
 
   useEffect(() => {
     if (!token || !role) {

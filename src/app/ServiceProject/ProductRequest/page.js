@@ -37,7 +37,7 @@ const Productrequest = () => {
           alert("No token found. Please login as an admin.");
           return;
         }
-        const response = await axios.get('http://localhost:5005/api/getsalesemployeeEid', {
+        const response = await axios.get('https://loyality.chennaisunday.com/api/getsalesemployeeEid', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ const Productrequest = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5005/api/productrequest', product, {
+      const response = await axios.post('https://loyality.chennaisunday.com/api/productrequest', product, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',

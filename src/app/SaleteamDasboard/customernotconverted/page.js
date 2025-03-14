@@ -55,7 +55,7 @@ const CustomerNotConverted = () => {
 
     try {
       const response = await axios.post(
-        `http://localhost:5005/api/customernotconverted`,
+        `https://loyality.chennaisunday.com/api/customernotconverted`,
         { EnquiryNo: leadNumber, remarks, Eid }, // Sending Eid as part of the request body
         {
           headers: {

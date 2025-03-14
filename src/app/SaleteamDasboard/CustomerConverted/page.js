@@ -27,7 +27,7 @@ const CompletedEnquiries = () => {
         return;
       }
       
-      const response = await axios.get(`http://localhost:5005/api/getenquiries/${Eid}`, {
+      const response = await axios.get(`https://loyality.chennaisunday.com/api/getenquiries/${Eid}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

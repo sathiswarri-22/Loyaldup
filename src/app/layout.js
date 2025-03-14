@@ -1,8 +1,9 @@
-"use client"
+"use client";
 import { Geist, Geist_Mono } from "next/font/google";
-import { usePathname } from 'next/navigation';
+import { usePathname } from "next/navigation";
 import "./globals.css";
 import Logout from "./logout";
+import { useEffect, useState } from "react";
 
 // Font imports
 const geistSans = Geist({
@@ -17,43 +18,35 @@ const geistMono = Geist_Mono({
 
 export default function RootLayout({ children }) {
   const pathname = usePathname();
+  const [isClient, setIsClient] = useState(false);
 
-  // Check if the current path is not the one you want to hide the div on
-  const hideDivOnPage = pathname === '/'; // Change '/your-page' to the page you want
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) return null; // Prevents rendering on the server
 
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <div className="flex flex-col min-h-screen">
-          {/* Conditionally render the top bar */}
-          {!hideDivOnPage && (
-            <div className="fixed top-0 left-0 right-0 flex items-center justify-between p-4 bg-white z-10">
-              {/* Logo in the top left corner */}
-              <img 
-                src="/logo123.png" 
-                alt="Logo" 
-                className="max-w-[2000px] h-auto"
-              />
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}>
+        {/* Sticky Navigation Bar */}
+        <header className="sticky top-0 left-0 right-0 flex items-center justify-between p-4 bg-white z-50 shadow-md">
+          {/* Logo */}
+          <img src="/logo123.png" alt="Logo" className="max-w-[200px] h-auto" />
 
-              {/* Company name centered */}
-              <div className="text-xl font-bold flex-grow text-center">
-LOYALTY AUTOMATION PVT LTD           
-   </div>
+          {/* Company Name */}
+          <div className="text-xl font-bold flex-grow text-center">
+            LOYALTY AUTOMATION PVT LTD
+          </div>
 
-              {/* Logout button in the top right corner */}
-              <div className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700 transition duration-300"
->
-                <Logout />
-              </div>
-            </div>
-          )}
+          {/* Logout Button */}
+          <div className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700 transition duration-300">
+            <Logout />
+          </div>
+        </header>
 
-          {/* Main content area */}
-          <main className=""> {/* Add margin top to prevent content from being hidden behind the fixed top bar */}
-          {!hideDivOnPage && (<div className="h-[60px]">
-            </div>)} {children}
-          </main>
-        </div>
+        {/* Main Content */}
+        <main className="flex-grow overflow-y-auto px-4 py-6">{children}</main>
       </body>
     </html>
   );

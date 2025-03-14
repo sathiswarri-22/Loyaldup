@@ -23,7 +23,7 @@ const ProfileView = () => {
         }
 
         if (Eid) {
-            axios.get(`http://localhost:5005/api/commonprofile/${Eid}`, {
+            axios.get(`https://loyality.chennaisunday.com/api/commonprofile/${Eid}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data',
@@ -48,7 +48,7 @@ const ProfileView = () => {
         }
     }, [Eid]);
 
-    const fileUploadUrl = profileData.Fileupload ? `http://localhost:5005/api/uploads/${profileData.profileimg}` : '';
+    const fileUploadUrl = profileData.Fileupload ? `https://loyality.chennaisunday.com/api/uploads/${profileData.profileimg}` : '';
 
     const handleBackClick = () => {
         router.push('/SaleteamDasboard/Dasboard');  
