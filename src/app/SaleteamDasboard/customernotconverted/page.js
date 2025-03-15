@@ -98,7 +98,6 @@ const CustomerNotConverted = () => {
         <h1 className="text-2xl font-bold text-center">Lead Form</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && <p className="text-red-500 text-center">{error}</p>} 
           {submitted && <p className="text-green-500 text-center">Lead submitted successfully!</p>}
 
           <div className="space-y-2">

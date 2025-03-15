@@ -112,7 +112,7 @@ const handlecustomerchange = (e)=>{
   const fetchDataFromAPI = async (EnquiryNo) => {
     try {
       const response = await axios.get(`https://loyality.chennaisunday.com/api/cc/Enquiryget/${EnquiryNo}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+        headers: { 'Authorization': `Bearer ${token}`}
       });
       console.log("Fetched data:", response.data);
       setFetchData(response.data.customerData);
@@ -157,6 +157,7 @@ const handlecustomerchange = (e)=>{
   
       console.log(response.data);
       alert("Customer data updated successfully!");
+      router.push('/SaleteamDasboard/Dasboard');
     } catch (err) {
       console.error("Error updating data:", err);
       alert("Failed to update customer data. Please try again.");
@@ -238,8 +239,9 @@ const handleBackClick = () => {
         <ChevronLeft size={24} />
         </button>
       <h1 className="text-3xl font-semibold text-center text-blue-600 mb-6">Customer Conversion Form</h1>
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
+      {error && <div className="text-red-600 text-center font-semibold">{error}</div>}
+    {success && <div className="text-green-600 text-center font-semibold">{success}</div>}
+      {!fetchData? (<form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label className="block text-lg font-medium text-gray-700">LEAD NUMBER:</label>
           <input
@@ -360,41 +362,15 @@ const handleBackClick = () => {
         >
           {loading ? 'Submitting...' : 'Submit'}
         </button>
-      </form>
-    </div>
-  
-    
-    {error && <div className="text-red-600 text-center font-semibold">{error}</div>}
-    {success && <div className="text-green-600 text-center font-semibold">{success}</div>}
-
-    {fetchData && arrayData && (
+      </form>): (
       <div>
         <h2 className="text-3xl font-semibold text-center text-blue-600 mb-6">Customer Details</h2>
         <form onSubmit={updatedata} className="space-y-6">
-          <table className="w-full table-auto">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="px-4 py-2 text-left">EnquiryNo</th>
-                <th className="px-4 py-2 text-left">CustomerId</th>
-                <th className="px-4 py-2 text-left">Company Name</th>
-                <th className="px-4 py-2 text-left">Customer Address</th>
-                <th className="px-4 py-2 text-left">Customer Country</th>
-                <th className="px-4 py-2 text-left">Client Name</th>
-                <th className="px-4 py-2 text-left">Description Details</th>
-                <th className="px-4 py-2 text-left">Mobile Number</th>
-                <th className="px-4 py-2 text-left">Opportunity Number</th>
-                <th className="px-4 py-2 text-left">Primary Mail</th>
-                <th className="px-4 py-2 text-left">Billing Address</th>
-                <th className="px-4 py-2 text-left">Billing Country</th>
-                <th className="px-4 py-2 text-left">Billing City</th>
-                <th className="px-4 py-2 text-left">Billing State</th>
-                <th className="px-4 py-2 text-left">Billing Postal Code</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="px-4 py-2">
-                  <input
+          
+           
+              
+                <label className="block text-lg font-medium text-gray-700">EnquiryNo</label>
+                <input
                     type="text"
                     name="EnquiryNo"
                     value={arrayData.EnquiryNo}
@@ -402,9 +378,8 @@ const handleBackClick = () => {
                     disabled={!isEditing}
                     className="w-full p-3 border border-gray-300 rounded-md"
                   />
-                </td>
-                <td className="px-4 py-2">
-                  <input
+                <label className="block text-lg font-medium text-gray-700">CustomerId</label>
+                <input
                     type="text"
                     name="CustomerId"
                     value={fetchData.CustomerId}
@@ -412,9 +387,8 @@ const handleBackClick = () => {
                     disabled={!isEditing}
                     className="w-full p-3 border border-gray-300 rounded-md"
                   />
-                </td>
-                <td className="px-4 py-2">
-                  <input
+                <label className="block text-lg font-medium text-gray-700">Company Name</label>
+                <input
                     type="text"
                     name="companyName"
                     value={fetchData.companyName}
@@ -422,9 +396,8 @@ const handleBackClick = () => {
                     disabled={!isEditing}
                     className="w-full p-3 border border-gray-300 rounded-md"
                   />
-                </td>
-                <td className="px-4 py-2">
-                  <input
+                <label className="block text-lg font-medium text-gray-700">Customer Address</label>
+                <input
                     type="text"
                     name="AddressDetails.Address"
                     value={fetchData.AddressDetails.Address}
@@ -432,9 +405,8 @@ const handleBackClick = () => {
                     disabled={!isEditing}
                     className="w-full p-3 border border-gray-300 rounded-md"
                   />
-                </td>
-                <td className="px-4 py-2">
-                  <input
+                <label className="block text-lg font-medium text-gray-700">Customer Country</label>
+                <input
                     type="text"
                     name="AddressDetails.Country"
                     value={fetchData.AddressDetails.Country}
@@ -442,9 +414,8 @@ const handleBackClick = () => {
                     disabled={!isEditing}
                     className="w-full p-3 border border-gray-300 rounded-md"
                   />
-                </td>
-                <td className="px-4 py-2">
-                  <input
+                <label className="block text-lg font-medium text-gray-700">Client Name</label>
+                <input
                     type="text"
                     name="clientName"
                     value={arrayData.clientName}
@@ -452,9 +423,8 @@ const handleBackClick = () => {
                     disabled={!isEditing}
                     className="w-full p-3 border border-gray-300 rounded-md"
                   />
-                </td>
-                <td className="px-4 py-2">
-                  <input
+                <label className="block text-lg font-medium text-gray-700">Description Details</label>
+                <input
                     type="text"
                     name="DescriptionDetails"
                     value={arrayData.DescriptionDetails}
@@ -462,9 +432,8 @@ const handleBackClick = () => {
                     disabled={!isEditing}
                     className="w-full p-3 border border-gray-300 rounded-md"
                   />
-                </td>
-                <td className="px-4 py-2">
-                  <input
+                <label className="block text-lg font-medium text-gray-700">Mobile Number</label>
+                <input
                     type="text"
                     name="CustomerDetails.MobileNumber"
                     value={arrayData.CustomerDetails.MobileNumber}
@@ -472,9 +441,8 @@ const handleBackClick = () => {
                     disabled={!isEditing}
                     className="w-full p-3 border border-gray-300 rounded-md"
                   />
-                </td>
-                <td className="px-4 py-2">
-                  <input
+                <label className="block text-lg font-medium text-gray-700">Opportunity Number</label>
+                <input
                     type="text"
                     name="CustomerDetails.opportunitynumber"
                     value={arrayData.CustomerDetails.opportunitynumber}
@@ -482,9 +450,8 @@ const handleBackClick = () => {
                     disabled={!isEditing}
                     className="w-full p-3 border border-gray-300 rounded-md"
                   />
-                </td>
-                <td className="px-4 py-2">
-                  <input
+                <label className="block text-lg font-medium text-gray-700">Primary Mail</label>
+                <input
                     type="text"
                     name="CustomerDetails.PrimaryMail"
                     value={arrayData.CustomerDetails.PrimaryMail}
@@ -492,9 +459,8 @@ const handleBackClick = () => {
                     disabled={!isEditing}
                     className="w-full p-3 border border-gray-300 rounded-md"
                   />
-                </td>
-                <td className="px-4 py-2">
-                  <input
+                <label className="block text-lg font-medium text-gray-700">Billing Address</label>
+                <input
                     type="text"
                     name="BillingAddressDetails.BillingAddress"
                     value={arrayData.BillingAddressDetails.BillingAddress}
@@ -502,9 +468,8 @@ const handleBackClick = () => {
                     disabled={!isEditing}
                     className="w-full p-3 border border-gray-300 rounded-md"
                   />
-                </td>
-                <td className="px-4 py-2">
-                  <input
+                <label className="block text-lg font-medium text-gray-700">Billing Country</label>
+                <input
                     type="text"
                     name="BillingAddressDetails.BillingCountry"
                     value={arrayData.BillingAddressDetails.BillingCountry}
@@ -512,9 +477,8 @@ const handleBackClick = () => {
                     disabled={!isEditing}
                     className="w-full p-3 border border-gray-300 rounded-md"
                   />
-                </td>
-                <td className="px-4 py-2">
-                  <input
+                <label className="block text-lg font-medium text-gray-700">Billing City</label>
+                <input
                     type="text"
                     name="BillingAddressDetails.BillingCity"
                     value={arrayData.BillingAddressDetails.BillingCity}
@@ -522,9 +486,8 @@ const handleBackClick = () => {
                     disabled={!isEditing}
                     className="w-full p-3 border border-gray-300 rounded-md"
                   />
-                </td>
-                <td className="px-4 py-2">
-                  <input
+                <label className="block text-lg font-medium text-gray-700">Billing State</label>
+                <input
                     type="text"
                     name="BillingAddressDetails.BillingState"
                     value={arrayData.BillingAddressDetails.BillingState}
@@ -532,9 +495,8 @@ const handleBackClick = () => {
                     disabled={!isEditing}
                     className="w-full p-3 border border-gray-300 rounded-md"
                   />
-                </td>
-                <td className="px-4 py-2">
-                  <input
+                <label className="block text-lg font-medium text-gray-700">Billing Postal Code</label>
+                <input
                     type="text"
                     name="BillingAddressDetails.BillingPostalCode"
                     value={arrayData.BillingAddressDetails.BillingPostalCode}
@@ -542,11 +504,7 @@ const handleBackClick = () => {
                     disabled={!isEditing}
                     className="w-full p-3 border border-gray-300 rounded-md"
                   />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-
+              
           <div className="flex justify-end space-x-4 mt-6">
             <button
               type="submit"
@@ -566,7 +524,13 @@ const handleBackClick = () => {
           </div>
         </form>
       </div>
-    )}
+      )}
+    </div>
+  
+    
+    
+
+   
   </div>
 
   );

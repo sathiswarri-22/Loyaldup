@@ -58,7 +58,6 @@ const Customernotconverted = () => {
           <p className="text-center text-green-600">Loading...</p> // Show loading message
         )}
 
-        {error && <p className="text-center text-red-600">{error}</p>} // Show error message if any
 
         {customers.length > 0 ? (
           <table className="min-w-full table-auto">

@@ -41,7 +41,7 @@ const Dashboard = () => {
     // Fetch Sales Employee List
   const fetchSalesEmployeeList = async () => {
     try {
-      const response = await axios.get("https://loyality.chennaisunday.com/api/getsalesemployeeEid", {
+      const response = await axios.get("http://localhost:5005/api/getsalesemployeeEid", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -59,7 +59,7 @@ const Dashboard = () => {
   // Fetch Other Employees List
   const fetchOtherEmployees = async () => {
     try {
-      const response = await axios.get("https://loyality.chennaisunday.com/api/getotheremployeeEid", {
+      const response = await axios.get("http://localhost:5005/api/getotheremployeeEid", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -80,14 +80,14 @@ const Dashboard = () => {
         setLoading(true);
         const response =
             role === "sales head"
-                ? await axios.get('https://loyality.chennaisunday.com/api/headenquiry', {
+                ? await axios.get('http://localhost:5005/api/headenquiry', {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         "Content-Type": "application/json",
                     },
                 })
                 : await axios.get(
-                    `https://loyality.chennaisunday.com/api/getenquiryforsaletam/${Eid}`,
+                    `http://localhost:5005/api/getenquiryforsaletam/${Eid}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -168,7 +168,7 @@ const handleSelectEnquiry = (EnquiryNo) => {
             if (selectedEnquiries.length === 0) return alert("Please select at least one enquiry.");
 
             const response = await axios.put(
-                `https://loyality.chennaisunday.com/api/assignedto`,
+                `http://localhost:5005/api/assignedto`,
                 {
                     Eid: EidToAssign,
                     EnquiryNo: selectedEnquiries,
@@ -202,7 +202,7 @@ const handleSelectEnquiry = (EnquiryNo) => {
         try {
           // API call to assign service to the selected enquiries
           const response = await axios.put(
-            "https://loyality.chennaisunday.com/api/assignedtoservice",
+            "http://localhost:5005/api/assignedtoservice",
             {
               Eid: EidToAssign,
               EnquiryNo: selectEnquiry, // Send selected enquiries for service assignment
@@ -364,8 +364,8 @@ const handleSelectEnquiry = (EnquiryNo) => {
                                     <table className="min-w-full table-auto text-left bg-white shadow-lg rounded-lg">
                                         <thead>
                                             <tr className="bg-green-100 text-green-600">
-                                                {role === "sales head" && <th className="px-4 py-2">Select</th>}
-                                                <th className="px-4 py-2">COMPANY NAME{enquiryData.length}</th>
+                                                { <th className="px-4 py-2">Select</th>}
+                                                <th className="px-4 py-2">COMPANY NAME</th>
                                                 <th className="px-4 py-2">CONTACT PERSON</th>
                                                 <th className="px-4 py-2">DEPARTMENT</th>
                                                 <th className="px-4 py-2">LEAD MEDIUM</th>
@@ -384,8 +384,8 @@ const handleSelectEnquiry = (EnquiryNo) => {
                                                 <th className="px-4 py-2">REMARKS</th>
                                                 <th className="px-4 py-2">Date</th>
                                                 <th className="px-4 py-2">ACTION</th>
-                                                <th className="px-4 py-2">CUSTOMER CONVERTION</th>
                                                 <th className="px-4 py-2">STATUS</th>
+                                                <th className="px-4 py-2">CUSTOMER CONVERTION</th>
 
 
 
@@ -427,14 +427,18 @@ const handleSelectEnquiry = (EnquiryNo) => {
                                                                
                                                                
                                                                 <button
-    onClick={() => handleClick('quotation', data.EnquiryNo)}
+   onClick={(e) => {
+    e.preventDefault(); // Prevent form submission
+    handleClick('quotation', data.EnquiryNo)
+}}
     className={`px-4 py-2 rounded-md transition duration-300 ml-2 ${clickedEnquiryNo === data.EnquiryNo ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}`}
 >
     Quotation
 </button>
 <td className="px-4 py-2">
     <button
-        onClick={() => handleEnquiryClick('enquiry', data.EnquiryNo)} 
+        onClick={(e) =>{ e.preventDefault();
+             handleEnquiryClick('enquiry', data.EnquiryNo)}} 
         className="px-4 py-2 rounded-md transition duration-300 ml-2 bg-blue-600 hover:bg-blue-700"
     >
         View Status
@@ -503,39 +507,48 @@ const handleSelectEnquiry = (EnquiryNo) => {
                                                             <td className="px-4 py-2">
                                                                
                                                             <button
-    onClick={() => handleClick('quotation', data.EnquiryNo)} 
+    onClick={(e) => {
+        e.preventDefault(); // Prevent form submission
+        handleClick('quotation', data.EnquiryNo)
+    }}
     className={`px-4 py-2 rounded-md transition duration-300 ml-2 ${clickedEnquiryNo === data.EnquiryNo ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}`}
 >
     Quotation
 </button>
 
  </td>
-
  <td>
+ <button
+        onClick={(e) =>{e.preventDefault();
+             handleEnquiryClick('enquiry', data.EnquiryNo)}} 
+        className="px-4 py-2 rounded-md transition duration-300 ml-2 bg-blue-600 hover:bg-blue-700"
+    >
+        View Status
+    </button>
+    </td>
+ {data?.Status!=='Enquiry-3stage'?(<td>
  <div className="flex space-x-4 mt-2">
         <button
-            onClick={() => handleCustomerConversion('yes', data.EnquiryNo)}
+            onClick={(e) =>{e.preventDefault();
+                 handleCustomerConversion('yes', data.EnquiryNo)}}
             className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition duration-300"
         >
             Yes
         </button>
 
         <button
-            onClick={() => handleNotConverted('no', data.EnquiryNo)}
+            onClick={(e) =>{e.preventDefault();
+                 handleNotConverted('no', data.EnquiryNo)}}
             className="px-4 py-2 text-white bg-red-600 rounded-md hover:bg-red-700 transition duration-300"
         >
             No
         </button>
         
-    <button
-        onClick={() => handleEnquiryClick('enquiry', data.EnquiryNo)} 
-        className="px-4 py-2 rounded-md transition duration-300 ml-2 bg-blue-600 hover:bg-blue-700"
-    >
-        View Status
-    </button>
+   
 
     </div>
- </td>
+ </td>):null}
+ 
  {selectEnquiry[0] === data.EnquiryNo ? <td>
                         {(role === "sales Employee" ||
                           data?.LeadDetails?.EnquiryType === "Project" ||
@@ -575,7 +588,7 @@ const handleSelectEnquiry = (EnquiryNo) => {
                                     
                                     {role === "sales head" && (
     <>
-        {/* Employee ID Input */}
+        
         {/* <div>
             <label className="block text-lg text-gray-700">Enter Employee ID (Eid)</label>
             <input
@@ -611,5 +624,3 @@ const handleSelectEnquiry = (EnquiryNo) => {
 };
 
 export default Dashboard;
-
-

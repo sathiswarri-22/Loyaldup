@@ -9,11 +9,8 @@ const Yes = () => {
   const router = useRouter();
   const [enquiries, setEnquiries] = useState([])
   const [array,setArray] = useState([]);
-  const [token, setToken] = useState("")
-  if (typeof window !== "undefined") {
-    const storedToken = localStorage.getItem("admintokens");
-    setToken(storedToken);
-  }
+  const token = localStorage.getItem('admintokens');
+
   
   const fetchEnquiries = async () => {
     try {

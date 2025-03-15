@@ -3,11 +3,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 const Viewallprofile = () => {
-  const [token, setToken] = useState("")
-  if (typeof window !== "undefined") {
-    const storedToken = localStorage.getItem("admintokens");
-    setToken(storedToken);
-  }
+  const token = localStorage.getItem('admintokens');
+
     if (!token) {
     alert("No token found. Please login as an admin.");
     return null;
