@@ -1,9 +1,9 @@
 "use client";
 import { Geist, Geist_Mono } from "next/font/google";
 import { usePathname } from "next/navigation";
-import "./globals.css";
-import Logout from "./logout";
 import { useEffect, useState } from "react";
+import Logout from "./logout";
+import "./globals.css";
 
 // Font imports
 const geistSans = Geist({
@@ -19,6 +19,23 @@ const geistMono = Geist_Mono({
 export default function RootLayout({ children }) {
   const pathname = usePathname();
   const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    // Prevent scrolling increment/decrement on number inputs
+    const handleWheel = (event) => {
+      if (event.target.type === "number") {
+        event.preventDefault(); // Disable scroll behavior (increment/decrement)
+      }
+    };
+
+    // Add event listener on mount
+    window.addEventListener("wheel", handleWheel, { passive: false });
+
+    // Clean up the event listener on unmount
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
 
   useEffect(() => {
     setIsClient(true);

@@ -1,11 +1,12 @@
 "use client";
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
 const CommonRegi = () => {
     const router = useRouter();
+    
     const [user, setUser] = useState({
         name: '',
         email: '',
@@ -22,6 +23,9 @@ const CommonRegi = () => {
         profileimg: ''
     });
 
+    // References for file inputs
+    const fileInputRef = useRef(null);
+    const profileImgInputRef = useRef(null);
 
     const handlesubmit = async (e) => {
         e.preventDefault();
@@ -58,6 +62,7 @@ const CommonRegi = () => {
             console.log('Successfully registered', response.data);
             alert('Registration successful');
             
+            // Reset user state
             setUser({
                 name: '',
                 email: '',
@@ -74,12 +79,21 @@ const CommonRegi = () => {
                 profileimg: ''
             });
 
+            // Reset file input fields explicitly using React ref
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+            if (profileImgInputRef.current) {
+                profileImgInputRef.current.value = '';
+            }
+
+            // Optionally, remove the token if it's no longer needed
             localStorage.removeItem('admintokens');
             console.log('Token removed');
 
         } catch (err) {
             console.log('Error occurred', err.response ? err.response.data : err.message);
-            alert(`Error:${err.response.data.message || 'An error occurred during registration. Please try again.'}`);
+            alert(`Error: ${err.response.data.message || 'An error occurred during registration. Please try again.'}`);
         }
     };
 
@@ -99,19 +113,19 @@ const CommonRegi = () => {
     };
 
     const handleBackClick = () => {
-        router.push('/admin/adminDasboard')
-      }
+        router.push('/admin/adminDasboard');
+    };
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-teal-100 to-teal-300">
-        <div className="w-full max-w-4xl p-8 space-y-6 bg-white rounded-xl shadow-2xl">
-            <div className="relative text-center mb-8">
-                <button 
-                    onClick={handleBackClick}
-                    className="absolute left-0 p-3 bg-white text-black rounded-full shadow-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
-                >
-                    <ChevronLeft size={24} />
-                </button>
+            <div className="w-full max-w-4xl p-8 space-y-6 bg-white rounded-xl shadow-2xl">
+                <div className="relative text-center mb-8">
+                    <button 
+                        onClick={handleBackClick}
+                        className="absolute left-0 p-3 bg-white text-black rounded-full shadow-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+                    >
+                        <ChevronLeft size={24} />
+                    </button>
                     <h2 className="text-2xl text-gray-700">Registration Page</h2>
                 </div>
 
@@ -174,7 +188,6 @@ const CommonRegi = () => {
                                 <option value="Inventory Manager">INVENTORY MANAGER</option>
                                 <option value="Lead filler">LEAD MANAGER</option>
                                 <option value="Stock Filler">STOCK FILLER</option>
-
                             </select>
                         </div>
                     </div>
@@ -257,8 +270,10 @@ const CommonRegi = () => {
                         <label className="font-medium text-gray-600">Resume Upload:</label>
                         <input
                             type="file"
+                            id="fileInput"
                             name="Fileupload"
                             onChange={handleFileChange}
+                            ref={fileInputRef} // Ref added here
                             className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                         />
                     </div>
@@ -267,8 +282,10 @@ const CommonRegi = () => {
                         <label className="font-medium text-gray-600">Profile Image Upload:</label>
                         <input
                             type="file"
+                            id="fileInputs"
                             name="profileimg"
                             onChange={handleFileChange}
+                            ref={profileImgInputRef} // Ref added here
                             className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
                         />
                     </div>

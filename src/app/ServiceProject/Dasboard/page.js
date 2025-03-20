@@ -6,30 +6,17 @@ import axios from 'axios';
 const Dashboard = () => {
     const role = localStorage.getItem('role');
     const [saleEnquiryData, setSaleEnquiryData] = useState([]);
-    const [token, setToken] = useState(null);
-    const [Eid, setEid] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [name, setName] = useState(null);
-    const [email , setEmail ] = useState(null)
     
     const router = useRouter();
 
-    useEffect(() => {
-        if (typeof window !== "undefined") {
-          const storedToken = localStorage.getItem('admintokens');
-          const storedEid = localStorage.getItem('idstore');
-          const storedName = localStorage.getItem('name');
-          const storedEmail = localStorage.getItem('email');
+  
+       
+    const token = localStorage.getItem('admintokens');
+    const Eid = localStorage.getItem('idstore');
+    const name = localStorage.getItem('name');
+    const email = localStorage.getItem('email');
     
-          setToken(storedToken);
-          setEid(storedEid);
-          setName(storedName);
-          setEmail(storedEmail);
-    
-          console.log(storedName);
-        }
-      }, []);
-    
+        
 
     useEffect(() => {
         if (!token || !Eid) return;
