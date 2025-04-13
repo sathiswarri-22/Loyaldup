@@ -7,7 +7,7 @@ const Getproduct = () => {
 
   const fetchProduct = async () => {
     try {
-      const response = await axios.get("https://loyality.chennaisunday.com/api/getproductslist", {
+      const response = await axios.get("http://localhost:5005/api/getproductslist", {
         headers: {
           "Content-Type": "multipart/form-data",
         },

@@ -18,7 +18,7 @@ const Customernotconverted = () => {
     const fetchCustomers = async () => {
       try {
         const res = await axios.get(
-          `https://loyality.chennaisunday.com/api/cc/not-converted/${employeeId}`, // Correct API endpoint
+          `http://localhost:5005/api/cc/not-converted/${employeeId}`, // Correct API endpoint
           {
             headers: {
               Authorization: `Bearer ${token}`, // Attach token for authorization

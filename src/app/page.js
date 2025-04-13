@@ -19,9 +19,12 @@ export default function Home() {
     e.preventDefault();
     setLoading(true);
     setErrorMessage('');
+ 
+   
 
     try {
-      const response = await axios.post('https://loyality.chennaisunday.com/api/login', user);
+
+      const response = await axios.post('http://localhost:5005/api/login', user);
       const { token, role, Eid } = response.data;
 
       if (token && role) {
@@ -35,7 +38,7 @@ export default function Home() {
         if (role === "md") {
           router.push('/admin/adminDasboard');
         } else if(role === "Service Engineer"|| role === "Engineer") {
-          router.push('/Serviceproject/Dasboard');
+          router.push('/ServiceProject/Dasboard');
         }else {
           router.push('/SaleteamDasboard/Dasboard');
         }

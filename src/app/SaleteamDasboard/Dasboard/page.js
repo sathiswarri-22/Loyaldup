@@ -132,9 +132,9 @@ const Dashboard = () => {
   
 
     
-   // Handle Enquiry Selection for Sales Head
+   
 const handleSelectEnquiry = (EnquiryNo) => {
-    console.log("Updated head selection:", EnquiryNo); // Debugging log
+    console.log("Updated head selection:", EnquiryNo); 
     setSelectedEnquiries((prevSelectedEnquiries) => {
       if (prevSelectedEnquiries.includes(EnquiryNo)) {
         return prevSelectedEnquiries.filter((id) => id !== EnquiryNo);
@@ -149,7 +149,7 @@ const handleSelectEnquiry = (EnquiryNo) => {
   };
   
   const handleSelectEnquies = (EnquiryNo) => {
-    console.log("Updated employee selection:", EnquiryNo); // Debugging log
+    console.log("Updated employee selection:", EnquiryNo); 
   setSelectEnquiry((prevSelectedEnquiry) => {
     if (prevSelectedEnquiry.includes(EnquiryNo))
         {
@@ -227,7 +227,7 @@ const handleSelectEnquiry = (EnquiryNo) => {
 
     const handleClick = (buttonType, EnquiryNo) => {
         if (buttonType === 'quotation') {
-            setClickedEnquiryNo(EnquiryNo); // Track the clicked enquiry
+            setClickedEnquiryNo(EnquiryNo); 
             router.push(`/SaleteamDasboard/Quotation?EnquiryNo=${EnquiryNo}`); // Navigate to the quotation page
         }
     };
@@ -259,7 +259,9 @@ const handleSelectEnquiry = (EnquiryNo) => {
             router.push(`/SaleteamDasboard/EnquiryStatus?EnquiryNo=${EnquiryNo}`);
         }
     };
-    
+    const ProductRequest = () => {
+        router.push('/SaleteamDasboard/Productrequest');
+    };
    
     
     
@@ -275,7 +277,7 @@ const handleSelectEnquiry = (EnquiryNo) => {
         router.push('/SaleteamDasboard/Cnc');
     };
 
-
+    
     const customerconverted = () => {
         router.push('/SaleteamDasboard/CustomerConverted');
     };
@@ -290,7 +292,13 @@ const handleSelectEnquiry = (EnquiryNo) => {
             console.log('cannot goes to the link',err)
         }
     }
-
+    const overallcustomerconvert = () =>{
+        try{
+            router.push('/SaleteamDasboard/Getcustomerdetails');
+        }catch(err){
+            console.log('cannot goes to the link',err)  
+        }
+    }  
     if (loading) {
         return <div>Loading...</div>;
       }
@@ -299,9 +307,9 @@ const handleSelectEnquiry = (EnquiryNo) => {
         return <div>Error: {error}</div>;
       }
 
-      const currentDate = new Date(); // Current time in UTC
-      const istDate = new Date(currentDate.getTime() + (5.5 * 60 * 60 * 1000)); // Convert to IST (UTC +5:30)
-      console.log(istDate.toLocaleString()); // Prints the date in IST
+      const currentDate = new Date(); 
+      const istDate = new Date(currentDate.getTime() + (5.5 * 60 * 60 * 1000)); 
+      console.log(istDate.toLocaleString()); 
       
 
     
@@ -343,6 +351,12 @@ const handleSelectEnquiry = (EnquiryNo) => {
                             Customer Converted
                         </button>
                         <button
+                            onClick={overallcustomerconvert}
+                            className="flex-1 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-300"
+                        >
+                             OverallCustomer
+                        </button>
+                        <button
                             onClick={CustomerNotConverted}
                             className="flex-1 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-300"
                         >
@@ -354,6 +368,12 @@ const handleSelectEnquiry = (EnquiryNo) => {
                         >
                             Inventory
                         </button>
+                        <button
+                            onClick={ProductRequest}
+                            className="flex-1 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-300"
+                        >
+                            Product Request
+                        </button>
                     </nav>
 
                     <div className="min-h-screen bg-gradient-to-br from-green-100 to-green-300 p-8">
@@ -364,7 +384,7 @@ const handleSelectEnquiry = (EnquiryNo) => {
                                     <table className="min-w-full table-auto text-left bg-white shadow-lg rounded-lg">
                                         <thead>
                                             <tr className="bg-green-100 text-green-600">
-                                                { <th className="px-4 py-2">Select</th>}
+                                                {<th className="px-4 py-2">Select</th>}
                                                 <th className="px-4 py-2">COMPANY NAME</th>
                                                 <th className="px-4 py-2">CONTACT PERSON</th>
                                                 <th className="px-4 py-2">DEPARTMENT</th>
@@ -386,9 +406,6 @@ const handleSelectEnquiry = (EnquiryNo) => {
                                                 <th className="px-4 py-2">ACTION</th>
                                                 <th className="px-4 py-2">STATUS</th>
                                                 <th className="px-4 py-2">CUSTOMER CONVERTION</th>
-
-
-
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -428,7 +445,7 @@ const handleSelectEnquiry = (EnquiryNo) => {
                                                                
                                                                 <button
    onClick={(e) => {
-    e.preventDefault(); // Prevent form submission
+    e.preventDefault(); 
     handleClick('quotation', data.EnquiryNo)
 }}
     className={`px-4 py-2 rounded-md transition duration-300 ml-2 ${clickedEnquiryNo === data.EnquiryNo ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}`}
@@ -459,7 +476,7 @@ const handleSelectEnquiry = (EnquiryNo) => {
                           {saleEmployeeId.length > 0 ? (
                             saleEmployeeId.map((employee, index) => (
                               <option key={index} value={employee.Eid}>
-                                {employee.Eid}
+                                {employee.Eid}-{employee.name}
                               </option>
                             ))
                           ) : (
@@ -562,7 +579,7 @@ const handleSelectEnquiry = (EnquiryNo) => {
                             {otherEmployee.length > 0 ? (
                               otherEmployee.map((employee, index) => (
                                 <option key={index} value={employee.Eid}>
-                                  {employee.Eid}
+                                  {employee.Eid}-{employee.name}
                                 </option>
                               ))
                             ) : (

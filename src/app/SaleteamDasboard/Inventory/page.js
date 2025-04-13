@@ -26,7 +26,7 @@ const ProductList = () => {
   // Fetch products
   const fetchProducts = async () => {
     try {
-      const response = await axios.get('https://loyality.chennaisunday.com/api-inventory/get-product');
+      const response = await axios.get('http://localhost:5005/api-inventory/get-product');
       setProducts(response.data);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -50,7 +50,7 @@ const ProductList = () => {
           Current: parseInt(existingProduct.Inward) + parseInt(newProduct.Inward) || 0, 
         };
 
-        const response = await axios.put(`https://loyality.chennaisunday.com/api-Inventory/update/${existingProduct._id}`, updatedProduct ,{
+        const response = await axios.put(`http://localhost:5005/api-Inventory/update/${existingProduct._id}`, updatedProduct ,{
           headers : {
             Authorization : `Bearer ${token}`
           }
@@ -60,7 +60,7 @@ const ProductList = () => {
           product._id === existingProduct._id ? { ...product, ...updatedProduct } : product
         ));
       } else {
-        const response = await axios.post('https://loyality.chennaisunday.com/api-inventory/add-product', newProduct , {
+        const response = await axios.post('http://localhost:5005/api-inventory/add-product', newProduct , {
           headers : {
             Authorization : `Bearer ${token}`
           }
@@ -111,7 +111,7 @@ const ProductList = () => {
 
   const handleSaveEdit = async (id) => {
     try {
-      const response = await axios.put(`https://loyality.chennaisunday.com/api-Inventory/update/${id}`, editedProduct ,{
+      const response = await axios.put(`http://localhost:5005/api-Inventory/update/${id}`, editedProduct ,{
         headers : {
           Authorization : `Bearer ${token}`
         }
@@ -133,7 +133,7 @@ const ProductList = () => {
 
   const deleteProduct = async (id) => {
     try {
-      await axios.delete(`https://loyality.chennaisunday.com/api-Inventory/delete/${id}`,{
+      await axios.delete(`http://localhost:5005/api-Inventory/delete/${id}`,{
         headers : {
           Authorization : `Bearer ${token}`
         }

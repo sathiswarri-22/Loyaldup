@@ -1,401 +1,341 @@
-"use client"
-import React, { useState, useEffect } from "react";
-import { PDFDocument, rgb } from "pdf-lib";
-import axios from "axios";
-import { useSearchParams } from 'next/navigation';
-import { useRouter } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
+"use client";
+import { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import axios from 'axios';
 
-const QuotationWithMerge = () => {
-  const [rows, setRows] = useState([
-    {
-      sno: "",
-      hsnCode: "",
-      unitDescription: "",
-      uom: "",
-      quantity: "",
-      unitPrice: "",
-      total: "",
-    },
-  ]);
-
-  const searchParams = useSearchParams();
-  const enqid = searchParams.get('EnquiryNo'); // Fetch Enquiry ID directly from query params
+const Home = () => {
+  const Eid = localStorage.getItem('idstore');
+  const searchparams = useSearchParams();
+  const EnquiryNo = searchparams.get('EnquiryNo');
+  const token = localStorage.getItem('admintokens');
   const router = useRouter();
 
-  const [daysForPayment, setDaysForPayment] = useState(30);
-  const [daysForValidity, setDaysForValidity] = useState(30);
-  const [isFormFilled, setIsFormFilled] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    products: [{ HSNCode: '', UnitDescription: '', Description: '', UOM: '', Quantity: '', UnitPrice: '', Total: '' }],
+    Eid: Eid,
+    EnquiryNo: EnquiryNo,
+    Paymentdue: '',
+    validity: '',
+    Warranty: '',
+    Delivery: '',
+    Discount: '',
+    Gst: 0,
+    PayableAmount: 0,
+  });
 
-  const handleGeneratepdf = async () => {
-    setLoading(true);
-  
-    // Make sure enqid is available before proceeding
-    if (!enqid) {
-      console.error("Enquiry ID is missing");
-      setLoading(false);
-      return;
-    }
-  
-    // Fetch enquiries from localStorage
-    const enquiries = JSON.parse(localStorage.getItem('enquiries')) || [];
-  
-    // Update the status of the specific enquiry without removing it
-    const updatedEnquiries = enquiries.map((enquiry) => {
-      if (enquiry.EnquiryNo === enqid) {
-        return {
-          ...enquiry,
-          status: 'Enquiry-3stage'  // Update status
-        };
-      }
-      return enquiry;
-    });
-  
-    // Save the updated enquiries back to localStorage
-    localStorage.setItem('enquiries', JSON.stringify(updatedEnquiries));
-  
-    console.log('Sending data to the API:', {
-      EnquiryNo: enqid,
-      status: 'Enquiry-3stage',
-    });
-  
-    const Token = localStorage.getItem('admintokens')
-  
-    try {
-      const response = await axios.put('https://loyality.chennaisunday.com/api/quotation', {
-        EnquiryNo: enqid,
-        status: 'Enquiry-3stage',
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Token}`,
-        },
-      });
-      
-      // Handle the response
-      if (!response.ok) {
-        return response.json().then((err) => {
-          throw new Error(err.message || 'Something went wrong');
-        });
-      }
-  
-      const data = await response.json();
-      console.log('Success:', data); // Handle success response
-  
-    } catch (error) {
-      console.error('Error:', error.response ? error.response.data : error); // This will log the error message from the server
-    }
-    
-    setLoading(false);
-  
-  
-  };
-  const handleInputChange = (e, index) => {
-    const { name, value } = e.target;
-    const updatedRows = [...rows];
-    updatedRows[index][name] = value;
+  const [customFields, setCustomFields] = useState({
+    Paymentdue: false,
+    Discount: false,
+    Warranty: false,
+    Delivery: false,
+    validity: false,
+  });
 
-    if (name === "quantity" || name === "unitPrice") {
-      const quantity = parseFloat(updatedRows[index].quantity) || 0;
-      const unitPrice = parseFloat(updatedRows[index].unitPrice) || 0;
-      updatedRows[index].total = (quantity * unitPrice).toFixed(2);
-    }
-
-    setRows(updatedRows);
-  };
-
-  const handleAddRow = () => {
-    setRows([
-      ...rows,
-      {
-        sno: "",
-        hsnCode: "",
-        unitDescription: "",
-        uom: "",
-        quantity: "",
-        unitPrice: "",
-        total: "",
-      },
-    ]);
-  };
-
-  const calculateTotalPrice = () => {
-    return rows.reduce((acc, row) => acc + (parseFloat(row.total) || 0), 0).toFixed(2);
-  };
+  const [popup, setPopup] = useState(false);
 
   useEffect(() => {
-    const isFilled = rows.every((row) => Object.values(row).every((value) => value !== ""));
-    setIsFormFilled(isFilled);
-  }, [rows]);
-
-  const handleTermsChange = (e, type) => {
-    if (type === "payment") {
-      setDaysForPayment(e.target.value);
-    } else if (type === "validity") {
-      setDaysForValidity(e.target.value);
+    if (EnquiryNo && Eid) {
+      getdataresponse();
+      getdataeditresponse();
     }
-  };
+  }, [EnquiryNo, Eid]);
 
-  const handleConvertToPDF = async () => {
-    const pdfDoc = await PDFDocument.create();
-
+  const getdataresponse = async () => {
     try {
-      const offerFormatResponse = await fetch("/Offer Format.pdf");
-      const offerFormatArrayBuffer = await offerFormatResponse.arrayBuffer();
-      const offerFormatPdf = await PDFDocument.load(offerFormatArrayBuffer);
-
-      const copiedPages = await pdfDoc.copyPages(offerFormatPdf, offerFormatPdf.getPageIndices());
-      copiedPages.forEach((page) => pdfDoc.addPage(page));
-
-      const font = await pdfDoc.embedFont("Helvetica");
-      const page = pdfDoc.getPages()[1]; 
-      const { width, height } = page.getSize();
-      const margin = 30;
-      const rowHeight = 20;
-  
-      let currentY = height - 450;
-  
-      page.drawText('Loyalty Automation Pvt Ltd', {
-        x: margin,
-        y: currentY,
-        size: 18,
-        font,
-        color: rgb(0, 0, 0), 
+      const response = await axios.get(`http://localhost:5005/api/quotationGetOne/${EnquiryNo}/${Eid}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-
-      currentY -= 20;
-  
-      page.drawText('Technocommercial Offer', {
-        x: margin,
-        y: currentY,
-        size: 14,
-        font,
-        color: rgb(0, 0, 0),
-      });
-
-      currentY -= 20;
-
-      page.drawText('Our Ref No: ', {
-        x: margin,
-        y: currentY,
-        size: 12,
-        font,
-        color: rgb(0, 0, 0),
-      });
-
-      currentY -= 20;
-  
-      page.drawText('Your Reference: ', {
-        x: margin,
-        y: currentY,
-        size: 12,
-        font,
-        color: rgb(0, 0, 0),
-      });
-  
-      currentY -= 20;
-  
-      page.drawText('Consignee Date: ', {
-        x: margin,
-        y: currentY,
-        size: 12,
-        font,
-        color: rgb(0, 0, 0),
-      });
-
-      currentY -= 40; 
-
-      const tableColumn = ["S. No", "HSN Code", "Unit Description", "UOM", "Quantity", "Unit Price", "Total"];
-      const tableRows = rows.map((row) => [
-        row.sno,
-        row.hsnCode,
-        row.unitDescription,
-        row.uom,
-        row.quantity,
-        row.unitPrice,
-        row.total,
-      ]);
-      const colWidths = [40, 80, 100, 80, 80, 100, 100];
-
-      currentY = height - 600;
-
-      tableColumn.forEach((header, index) => {
-        page.drawText(header, {
-          x: margin + colWidths.slice(0, index).reduce((sum, width) => sum + width, 0),
-          y: currentY,
-          size: 12,
-          font,
-        });
-      });
-
-      currentY -= rowHeight;
-
-      tableRows.forEach((row) => {
-        row.forEach((cell, index) => {
-          page.drawText(cell, {
-            x: margin + colWidths.slice(0, index).reduce((sum, width) => sum + width, 0),
-            y: currentY,
-            size: 11,
-            font,
-          });
-        });
-        currentY -= rowHeight;
-      });
-
-      const totalPrice = calculateTotalPrice();
-      page.drawText(`Total: Rs. ${totalPrice}`, {
-        x: margin + colWidths.slice(0, 6).reduce((sum, width) => sum + width, -40),
-        y: currentY - 30,
-        size: 12,
-        font,
-      });
-
-      currentY -= 40; 
-      const termsText = `Terms and Conditions:\n1. All payments are due within ${daysForPayment} days.\n2. Prices are exclusive of taxes.\n3. Delivery charges will be added as applicable.\n4. This quote is valid for ${daysForValidity} days from the date of issue.`;
-      page.drawText(termsText, {
-        x: margin,
-        y: currentY,
-        size: 10,
-        font,
-      });
-
-      const mergedPdfBytes = await pdfDoc.save();
-      const mergedPdfUrl = URL.createObjectURL(new Blob([mergedPdfBytes]));
-      const link = document.createElement("a");
-      link.href = mergedPdfUrl;
-      link.download = "Quotation_with_Offer_Format.pdf";
-      link.click();
-    } catch (error) {
-      console.error("Error generating PDF:", error);
+      if (response.data.data?.Status === 'quotsaccess') {
+        setPopup(true);
+      }
+    } catch (err) {
+      console.error('Error getting the quotation:', err);
     }
   };
 
-  const handleButtonClick = () => {
-    router.push('/SaleteamDasboard/Dasboard')
-  }
+  const getdataeditresponse = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5005/api/quotationEditOne/${EnquiryNo}/${Eid}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.data.data?.Status === 'Editaccess') {
+        setPopup(true);
+      }
+    } catch (err) {
+      console.error('Error getting the quotation:', err);
+    }
+  };
+
+  const calculateTotals = (products) => {
+    let overallTotal = 0;
+    const updatedProducts = products.map((product) => {
+      const quantity = Number(product.Quantity) || 0;
+      const unitPrice = Number(product.UnitPrice) || 0;
+      const total = quantity * unitPrice;
+      overallTotal += total;
+      return { ...product, Total: total.toFixed(2) };
+    });
+    setFormData((prev) => ({
+      ...prev,
+      products: updatedProducts,
+      PayableAmount: overallTotal.toFixed(2),
+    }));
+  };
+
+  const handleProductChange = (e, index) => {
+    const { name, value } = e.target;
+    const updatedProducts = [...formData.products];
+    updatedProducts[index] = { ...updatedProducts[index], [name]: value };
+    setFormData((prev) => ({ ...prev, products: updatedProducts }));
+    calculateTotals(updatedProducts);
+  };
+
+  const addProduct = () => {
+    setFormData((prev) => ({
+      ...prev,
+      products: [...prev.products, { HSNCode: '', UnitDescription: '', Description: '', UOM: '', Quantity: '', UnitPrice: '', Total: '' }],
+    }));
+  };
+
+  const handleSelectChange = (e, field) => {
+    const value = e.target.value;
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setCustomFields((prev) => ({ ...prev, [field]: value === 'Others' }));
+  };
+
+  const handleCustomChange = (e, field) => {
+    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post('http://localhost:5005/api/Quatation', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      alert('Quotation submitted successfully!');
+      setFormData({
+        products: [{ HSNCode: '', UnitDescription: '', Description: '', UOM: '', Quantity: '', UnitPrice: '', Total: '' }],
+        Eid: Eid,
+        EnquiryNo: EnquiryNo,
+        Paymentdue: '',
+        validity: '',
+        Warranty: '',
+        Delivery: '',
+        Discount: '',
+        Gst: 0,
+        PayableAmount: 0,
+      });
+    } catch (err) {
+      console.error('Error submitting the quotation:', err);
+      alert('Failed to submit quotation.');
+    }
+  };
+
+  const handlePDFGenerate = () => {
+    router.push(`/SaleteamDasboard/PDF?EnquiryNo=${EnquiryNo}&Eid=${Eid}`);
+  };
+
+  const handleEdit = () => {
+    router.push(`/SaleteamDasboard/Getquotation?EnquiryNo=${EnquiryNo}&mode=edit`);
+  };
 
   return (
-    <div className="bg-gray-50 min-h-screen p-8">
-      <div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg p-6">
-      <button onClick={handleButtonClick}
-                              className="p-3 bg-white text-black rounded-full shadow-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
->
-        <ChevronLeft size={24} />
+    <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg">
+      <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">Create Quotation</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <h2 className="text-xl font-bold mb-4">Products</h2>
+        <table className="w-full border-collapse border border-gray-300 mb-4">
+          <thead>
+            <tr>
+              {['HSNCode', 'UnitDescription', 'Description', 'UOM', 'Quantity', 'UnitPrice', 'Total'].map((header) => (
+                <th key={header} className="border border-gray-300 px-4 py-2">{header}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {formData.products.map((product, index) => (
+              <tr key={index}>
+                {['HSNCode', 'UnitDescription', 'Description', 'UOM', 'Quantity', 'UnitPrice'].map((field) => (
+                  <td key={field} className="border border-gray-300 px-4 py-2">
+                    <input
+                      name={field}
+                      value={product[field]}
+                      onChange={(e) => handleProductChange(e, index)}
+                      type={['Quantity', 'UnitPrice'].includes(field) ? 'number' : 'text'}
+                      className="w-full px-2 py-1 border rounded"
+                    />
+                  </td>
+                ))}
+                <td className="border border-gray-300 px-4 py-2">
+                  <span>{product.Total}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <button type="button" onClick={addProduct} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+          Add Product
         </button>
 
-        <h2 className="text-3xl font-semibold text-center text-green-600 mb-6">Quotation Form</h2>
-       
-        {/* Table Form */}
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-gray-700">Add Product Details {enqid}</h3>
-          {["sno", "hsnCode", "unitDescription", "uom", "quantity", "unitPrice"].map((field, index) => (
-            <div key={index} className="flex items-center space-x-4">
-              <label className="block w-1/4">{`Enter ${field.charAt(0).toUpperCase() + field.slice(1)}`}</label>
-              <input
-                type={field === "quantity" || field === "unitPrice" ? "number" : "text"}
-                name={field}
-                value={rows[rows.length - 1][field]}
-                onChange={(e) => handleInputChange(e, rows.length - 1)}
-                className="w-3/4 p-3 border border-gray-300 rounded-lg"
-              />
-            </div>
-          ))}
-          <button
-            onClick={handleAddRow}
-            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300"
+        <div>
+          <label>Payment Due:</label>
+          <select name="Paymentdue" value={formData.Paymentdue} onChange={(e) => handleSelectChange(e, 'Paymentdue')}>
+            <option value="">Select</option>
+            <option value="100% against proforma Invoice">100% against Proforma Invoice</option>
+            <option value="100% against delivery">100% against Delivery</option>
+            <option value="30 days PDC">30 Days PDC</option>
+            <option value="50% advance & 50% against delivery">50% Advance & 50% Against Delivery</option>
+            <option value="Others">Others</option>
+          </select>
+          {customFields.Paymentdue && (
+            <input type="text" name="Paymentdue" value={formData.Paymentdue} onChange={(e) => handleCustomChange(e, 'Paymentdue')} />
+          )}
+        </div>
+        <div>
+          <label className="text-gray-700 font-medium mb-1">Validity</label>
+          <select
+            name="validity"
+            value={formData.validity}
+            onChange={(e) => handleSelectChange(e, 'validity')}
+            className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            Add Product
-          </button>
+            <option value="">Select option</option>
+            <option value="1 week from the date of quotation.">1 Week from the Date of Quotation</option>
+            <option value="Others">Others</option>
+          </select>
+        </div>
+        {customFields.validity && (
+          <input
+            type="text"
+            name="validity"
+            value={formData.validity}
+            onChange={(e) => handleCustomChange(e, 'validity')}
+            placeholder="Specify Validity"
+            className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        )}
 
-          {/* Terms and Conditions */}
-          <div className="mt-6">
-            <label className="block text-gray-700 text-lg mb-2">Terms and Conditions</label>
-            <div className="space-y-4">
-              <div>
-                <label>All payments are due within</label>
-                <select
-                  value={daysForPayment}
-                  onChange={(e) => handleTermsChange(e, "payment")}
-                  className="ml-2 p-2 border rounded"
-                >
-                  {[30, 60, 90, 120].map((dayOption) => (
-                    <option key={dayOption} value={dayOption}>
-                      {dayOption} days
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>Prices are exclusive of taxes.</div>
-              <div>Delivery charges will be added as applicable.</div>
-              <div>
-                <label>This quote is valid for</label>
-                <select
-                  value={daysForValidity}
-                  onChange={(e) => handleTermsChange(e, "validity")}
-                  className="ml-2 p-2 border rounded"
-                >
-                  {[30, 60, 90, 120].map((dayOption) => (
-                    <option key={dayOption} value={dayOption}>
-                      {dayOption} days
-                    </option>
-                  ))}
-                </select>
-                <label> from the date of issue.</label>
-              </div>
-            </div>
-          </div>
-
-          {/* Table Display */}
-          <div className="overflow-x-auto mt-6">
-            <table className="min-w-full text-sm text-left text-gray-500">
-              <thead className="bg-gray-200">
-                <tr>
-                  <th className="px-6 py-3">S. No</th>
-                  <th className="px-6 py-3">HSN Code</th>
-                  <th className="px-6 py-3">Unit Description</th>
-                  <th className="px-6 py-3">UOM</th>
-                  <th className="px-6 py-3">Quantity</th>
-                  <th className="px-6 py-3">Unit Price</th>
-                  <th className="px-6 py-3">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row, index) => (
-                  <tr key={index} className="border-t">
-                    <td className="px-6 py-3">{row.sno}</td>
-                    <td className="px-6 py-3">{row.hsnCode}</td>
-                    <td className="px-6 py-3">{row.unitDescription}</td>
-                    <td className="px-6 py-3">{row.uom}</td>
-                    <td className="px-6 py-3">{row.quantity}</td>
-                    <td className="px-6 py-3">{row.unitPrice}</td>
-                    <td className="px-6 py-3">{row.total}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Total Price */}
-          <div className="mt-4 text-right font-semibold text-xl">
-            Total: Rs. {calculateTotalPrice()}
-          </div>
-
-          {/* Generate PDF Button */}
-          <button
-            onClick={() => {
-              handleConvertToPDF();
-              handleGeneratepdf();
-            }}
-            disabled={!isFormFilled}
-            className={`px-6 py-2 mt-6 ${!isFormFilled ? "bg-gray-400 cursor-not-allowed" : "bg-green-600"} text-white rounded-lg hover:bg-green-700 transition duration-300`}
+        {/* Warranty */}
+        <div>
+          <label className="text-gray-700 font-medium mb-1">Warranty</label>
+          <select
+            name="Warranty"
+            value={formData.Warranty}
+            onChange={(e) => handleSelectChange(e, 'Warranty')}
+            className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
+            <option value="">Select option</option>
+            <option value="1 Year from the date of supply">1 Year from the Date of Supply</option>
+            <option value="6 months from the date of service">6 Months from the Date of Service</option>
+            <option value="Others">Others</option>
+          </select>
+        </div>
+        {customFields.Warranty && (
+          <input
+            type="text"
+            name="Warranty"
+            value={formData.Warranty}
+            onChange={(e) => handleCustomChange(e, 'Warranty')}
+            placeholder="Specify Warranty"
+            className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        )}
+
+        {/* Delivery */}
+        <div>
+          <label className="text-gray-700 font-medium mb-1">Delivery</label>
+          <select
+            name="Delivery"
+            value={formData.Delivery}
+            onChange={(e) => handleSelectChange(e, 'Delivery')}
+            className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">Select option</option>
+            <option value="1 week from date of PO">1 Week from Date of PO</option>
+            <option value="Week">Week</option>
+            <option value="Day">Day</option>
+            <option value="Others">Others</option>
+          </select>
+        </div>
+        {customFields.Delivery && (
+          <input
+            type="text"
+            name="Delivery"
+            value={formData.Delivery}
+            onChange={(e) => handleCustomChange(e, 'Delivery')}
+            placeholder="Specify Delivery"
+            className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        )}
+
+        {/* Discount */}
+        <div>
+          <label className="text-gray-700 font-medium mb-1">Discount</label>
+          <select
+            name="Discount"
+            value={formData.Discount}
+            onChange={(e) => handleSelectChange(e, 'Discount')}
+            className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">Select option</option>
+            <option value="Discounted Price">Discounted Price</option>
+            <option value="Mentioned above">Mentioned Above</option>
+            <option value="Others">Others</option>
+          </select>
+        </div>
+        {customFields.Discount && (
+          <input
+            type="text"
+            name="Discount"
+            value={formData.Discount}
+            onChange={(e) => handleCustomChange(e, 'Discount')}
+            placeholder="Specify Discount"
+            className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        )}
+        <div>
+  <label>GST</label>
+  <input
+    type="number"
+    name="Gst"
+    value={formData.Gst}
+    onChange={(e) => setFormData((prev) => ({ ...prev, Gst: e.target.value }))}
+    className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+  />
+</div>
+
+         <div>
+            <label className="text-gray-700 font-medium mb-1">Payable Amount</label>
+            <input
+              type="number"
+              name="PayableAmount"
+              value={formData.PayableAmount}
+              readOnly
+              className="px-4 py-2 border rounded-lg bg-gray-100"
+            />
+          </div>
+        <button type="submit" className="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">
+          Submit Quotation
+        </button>
+      </form>
+
+      {popup && (
+        <div className="bg-yellow-100 p-4 rounded-md shadow-md mt-4">
+          <p className="text-gray-800 mb-2">Authorized Successfully Retrieved the Response.</p>
+          <button onClick={handlePDFGenerate} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mr-2">
             Generate PDF
           </button>
+          <button onClick={handleEdit} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+            Edit
+          </button>
         </div>
-      </div>
+      )}
     </div>
   );
 };
 
-export default QuotationWithMerge;
+export default Home;

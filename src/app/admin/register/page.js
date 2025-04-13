@@ -6,7 +6,6 @@ import { ChevronLeft } from "lucide-react";
 
 const CommonRegi = () => {
     const router = useRouter();
-    
     const [user, setUser] = useState({
         name: '',
         email: '',
@@ -16,23 +15,49 @@ const CommonRegi = () => {
         contactnumber: '',
         address: '',
         Currentsalary: '',
-        CompanyResources: '',
         Remarks: '',
         EOD: '',
-        Fileupload: '',
-        profileimg: ''
+        Fileupload: null,
+        profileimg: null
     });
 
-    // References for file inputs
+    const [companyResources, setCompanyResources] = useState([]);
     const fileInputRef = useRef(null);
     const profileImgInputRef = useRef(null);
 
-    const handlesubmit = async (e) => {
-        e.preventDefault();
-        const { name, email, password, role, JOD, contactnumber, address, Currentsalary, CompanyResources, Remarks, Fileupload } = user;
+    const handleAddResource = () => {
+        setCompanyResources([...companyResources, { Thingsname: '', productnumber: '', givenStatus: '' }]);
+    };
 
-        if (!name || !email || !password || !role || !JOD) {
-            alert("All fields are required");
+    const handleResourceChange = (index, field, value) => {
+        const newResources = [...companyResources];
+        newResources[index][field] = value;
+        setCompanyResources(newResources);
+    };
+
+    const handleFileChange = (e) => {
+        const { name, files } = e.target;
+        setUser((prev) => ({
+            ...prev,
+            [name]: files[0],
+        }));
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setUser((prev) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const { name, email, password, role, JOD, contactnumber } = user;
+
+        if (!name || !email || !password || !role || !JOD || !contactnumber) {
+            alert("All required fields must be filled.");
             return;
         }
 
@@ -44,25 +69,36 @@ const CommonRegi = () => {
 
         try {
             const formData = new FormData();
-            Object.keys(user).forEach(key => {
-                if (key === "Fileupload") {
-                    formData.append(key, user[key]);
-                } else {
-                    formData.append(key, user[key]);
-                }
+            formData.append("name", name);
+            formData.append("email", email);
+            formData.append("password", password);
+            formData.append("role", role);
+            formData.append("JOD", JOD);
+            formData.append("contactnumber", contactnumber);
+            formData.append("address", user.address);
+            formData.append("Currentsalary", user.Currentsalary);
+            formData.append("Remarks", user.Remarks);
+            formData.append("EOD", user.EOD);
+
+            companyResources.forEach((resource, index) => {
+                formData.append(`CompanyResources[${index}][Thingsname]`, resource.Thingsname);
+                formData.append(`CompanyResources[${index}][productnumber]`, resource.productnumber);
+                formData.append(`CompanyResources[${index}][givenStatus]`, resource.givenStatus);
             });
 
-            const response = await axios.post('https://loyality.chennaisunday.com/api/registration', formData, {
+            if (user.Fileupload) formData.append("Fileupload", user.Fileupload);
+            if (user.profileimg) formData.append("profileimg", user.profileimg);
+
+            const response = await axios.post('http://localhost:5005/api/registration', formData, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data',
                 }
             });
 
-            console.log('Successfully registered', response.data);
             alert('Registration successful');
-            
-            // Reset user state
+            console.log('Successfully registered', response.data);
+
             setUser({
                 name: '',
                 email: '',
@@ -72,44 +108,20 @@ const CommonRegi = () => {
                 contactnumber: '',
                 address: '',
                 Currentsalary: '',
-                CompanyResources: '',
                 Remarks: '',
                 EOD: '',
-                Fileupload: '',
-                profileimg: ''
+                Fileupload: null,
+                profileimg: null
             });
+            setCompanyResources([]);
 
-            // Reset file input fields explicitly using React ref
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
-            if (profileImgInputRef.current) {
-                profileImgInputRef.current.value = '';
-            }
-
-            // Optionally, remove the token if it's no longer needed
-            localStorage.removeItem('admintokens');
-            console.log('Token removed');
+            if (fileInputRef.current) fileInputRef.current.value = '';
+            if (profileImgInputRef.current) profileImgInputRef.current.value = '';
 
         } catch (err) {
-            console.log('Error occurred', err.response ? err.response.data : err.message);
-            alert(`Error: ${err.response.data.message || 'An error occurred during registration. Please try again.'}`);
+            console.error('Error:', err.response ? err.response.data : err.message);
+            alert(`Error: ${err.response?.data?.message || 'An error occurred.'}`);
         }
-    };
-
-    const handlechange = (e) => {
-        const { name, value } = e.target;
-        setUser({
-            ...user,
-            [name]: value,
-        });
-    };
-
-    const handleFileChange = (e) => {
-        setUser({
-            ...user,
-            [e.target.name]: e.target.files[0],
-        });
     };
 
     const handleBackClick = () => {
@@ -120,194 +132,217 @@ const CommonRegi = () => {
         <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-teal-100 to-teal-300">
             <div className="w-full max-w-4xl p-8 space-y-6 bg-white rounded-xl shadow-2xl">
                 <div className="relative text-center mb-8">
-                    <button 
+                    <button
                         onClick={handleBackClick}
-                        className="absolute left-0 p-3 bg-white text-black rounded-full shadow-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+                        className="absolute left-0 p-3 bg-white text-black rounded-full shadow-md hover:bg-gray-200"
                     >
                         <ChevronLeft size={24} />
                     </button>
                     <h2 className="text-2xl text-gray-700">Registration Page</h2>
                 </div>
 
-                <form onSubmit={handlesubmit} className="space-y-6">
-                    {/* Personal Details */}
+                <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                       
                         <div className="flex flex-col">
-                            <label className="font-medium text-gray-600">Name:</label>
+                            <label>Name:</label>
                             <input
                                 name="name"
                                 placeholder="Enter your name"
                                 value={user.name}
-                                onChange={handlechange}
+                                onChange={handleChange}
                                 required
-                                className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                            />
-                        </div>
-
-                        <div className="flex flex-col">
-                            <label className="font-medium text-gray-600">Email:</label>
-                            <input
-                                name="email"
-                                placeholder="Enter your email"
-                                value={user.email}
-                                onChange={handlechange}
-                                required
-                                className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                className="px-4 py-3 border rounded-lg"
                             />
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div className="flex flex-col">
-                            <label className="font-medium text-gray-600">Password:</label>
-                            <input
-                                name="password"
-                                type="password"
-                                placeholder="Enter at least 12 characters"
-                                value={user.password}
-                                onChange={handlechange}
-                                required
-                                className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                            />
-                        </div>
-
-                        <div className="flex flex-col">
-                            <label className="font-medium text-gray-600">Role:</label>
-                            <select
-                                name="role"
-                                value={user.role}
-                                onChange={handlechange}
-                                required
-                                className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                            >
-                                <option value="">-- Choose a role --</option>
-                                <option value="sales head">SALEHEAD</option>
-                                <option value="Engineer">ENGINEER</option>
-                                <option value="Service Engineer">SERVICE ENGINEER</option>
-                                <option value="Sales Employee">SALE EMPLOYEE</option>
-                                <option value="Inventory Manager">INVENTORY MANAGER</option>
-                                <option value="Lead filler">LEAD MANAGER</option>
-                                <option value="Stock Filler">STOCK FILLER</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div className="flex flex-col">
-                            <label className="font-medium text-gray-600">JOD:</label>
-                            <input
-                                type="date"
-                                name="JOD"
-                                value={user.JOD}
-                                onChange={handlechange}
-                                required
-                                className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                            />
-                        </div>
-
-                        <div className="flex flex-col">
-                            <label className="font-medium text-gray-600">Contact Number:</label>
-                            <input
-                                name="contactnumber"
-                                placeholder="Enter your contact number"
-                                value={user.contactnumber}
-                                onChange={handlechange}
-                                required
-                                className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Address & Salary */}
                     <div className="flex flex-col">
-                        <label className="font-medium text-gray-600">Address:</label>
+                        <label>Email:</label>
+                        <input
+                            name="email"
+                            placeholder="Enter your email"
+                            value={user.email}
+                            onChange={handleChange}
+                            required
+                            className="px-4 py-3 border rounded-lg"
+                        />
+                    </div>
+
+                    <div className="flex flex-col">
+                        <label>Password:</label>
+                        <input
+                            name="password"
+                            type="password"
+                            placeholder="Enter password"
+                            value={user.password}
+                            onChange={handleChange}
+                            required
+                            className="px-4 py-3 border rounded-lg"
+                        />
+                    </div>
+
+                    <div className="flex flex-col">
+                        <label>Role:</label>
+                        <select
+                            name="role"
+                            value={user.role}
+                            onChange={handleChange}
+                            required
+                            className="px-4 py-3 border rounded-lg"
+                        >
+                            <option value="">-- Choose Role --</option>
+                            <option value="sales head">Sales Head</option>
+                            <option value="Engineer">Engineer</option>
+                            <option value="Service Engineer">Service Engineer</option>
+                            <option value="Sales Employee">Sales Employee</option>
+                            <option value="Inventory Manager">Inventory Manager</option>
+                            <option value="Lead filler">Lead Filler</option>
+                            <option value="Stock Filler">Stock Filler</option>
+                        </select>
+                    </div>
+
+                    <div className="flex flex-col">
+                        <label>Joining Date:</label>
+                        <input
+                            type="date"
+                            name="JOD"
+                            value={user.JOD}
+                            onChange={handleChange}
+                            required
+                            className="px-4 py-3 border rounded-lg"
+                        />
+                    </div>
+
+                    <div className="flex flex-col">
+                        <label>Contact Number:</label>
+                        <input
+                            name="contactnumber"
+                            placeholder="Enter contact number"
+                            value={user.contactnumber}
+                            onChange={handleChange}
+                            required
+                            className="px-4 py-3 border rounded-lg"
+                        />
+                    </div>
+
+                    <div className="flex flex-col">
+                        <label>Current Salary:</label>
+                        <input
+                            name="Currentsalary"
+                            placeholder="Enter current salary"
+                            value={user.Currentsalary}
+                            onChange={handleChange}
+                            required
+                            className="px-4 py-3 border rounded-lg"
+                        />
+                    </div>
+
+                    <div className="flex flex-col">
+                        <label>Address:</label>
                         <input
                             name="address"
                             placeholder="Enter your address"
                             value={user.address}
-                            onChange={handlechange}
-                            className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            onChange={handleChange}
+                            className="px-4 py-3 border rounded-lg"
                         />
                     </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div className="flex flex-col">
-                            <label className="font-medium text-gray-600">Current Salary:</label>
-                            <input
-                                name="Currentsalary"
-                                placeholder="Enter current salary"
-                                value={user.Currentsalary}
-                                onChange={handlechange}
-                                className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                            />
-                        </div>
-
-                        <div className="flex flex-col">
-                            <label className="font-medium text-gray-600">Company Resources:</label>
-                            <input
-                                name="CompanyResources"
-                                placeholder="Enter company resources"
-                                value={user.CompanyResources}
-                                onChange={handlechange}
-                                className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                            />
-                        </div>
+                 
+                    <div className="flex flex-col">
+                        <label>Company Resources:</label>
+                        {companyResources.map((resource, index) => (
+                            <div key={index} className="flex gap-4">
+                                <input
+                                    placeholder="Thing Name"
+                                    value={resource.Thingsname}
+                                    onChange={(e) => handleResourceChange(index, 'Thingsname', e.target.value)}
+                                    className="px-4 py-3 border rounded-lg"
+                                />
+                                <input
+                                    placeholder="Product Number"
+                                    value={resource.productnumber}
+                                    onChange={(e) => handleResourceChange(index, 'productnumber', e.target.value)}
+                                    className="px-4 py-3 border rounded-lg"
+                                />
+                                <select
+                                    value={resource.givenStatus}
+                                    onChange={(e) => handleResourceChange(index, 'givenStatus', e.target.value)}
+                                    className="px-4 py-3 border rounded-lg"
+                                >
+                                    <option value="">Status</option>
+                                    <option value="provided">Given</option>
+                                    <option value="handover">Handover</option>
+                                    <option value="bending">Bending</option>
+                                    <option value="nothandover">Not Handover</option>
+                                </select>
+                                <button
+                                    type="button"
+                                    onClick={() => setCompanyResources(companyResources.filter((_, i) => i !== index))}
+                                    className="px-4 py-2 bg-red-500 text-white rounded"
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        ))}
+                        <button
+                            type="button"
+                            onClick={handleAddResource}
+                            className="mt-2 px-4 py-2 bg-green-500 text-white rounded"
+                        >
+                            Add Resource
+                        </button>
                     </div>
 
                     <div className="flex flex-col">
-                        <label className="font-medium text-gray-600">Remarks:</label>
-                        <input
-                            name="Remarks"
-                            placeholder="Enter remarks"
-                            value={user.Remarks}
-                            onChange={handlechange}
-                            className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                        />
-                    </div>
-
-                    {/* File Upload */}
-                    <div className="flex flex-col">
-                        <label className="font-medium text-gray-600">Resume Upload:</label>
-                        <input
-                            type="file"
-                            id="fileInput"
-                            name="Fileupload"
-                            onChange={handleFileChange}
-                            ref={fileInputRef} // Ref added here
-                            className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-                        />
-                    </div>
-
-                    <div className="flex flex-col">
-                        <label className="font-medium text-gray-600">Profile Image Upload:</label>
+                        <label>Profile Image:</label>
                         <input
                             type="file"
-                            id="fileInputs"
                             name="profileimg"
+                            accept="image/*"
+                            ref={profileImgInputRef}
                             onChange={handleFileChange}
-                            ref={profileImgInputRef} // Ref added here
-                            className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            className="px-4 py-3 border rounded-lg"
                         />
                     </div>
 
-                    {/* EOD Date */}
                     <div className="flex flex-col">
-                        <label className="font-medium text-gray-600">EOD:</label>
+                        <label>File Upload:</label>
+                        <input
+                            type="file"
+                            name="Fileupload"
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            className="px-4 py-3 border rounded-lg"
+                        />
+                    </div>
+                    <div className="flex flex-col">
+                        <label>Ending Date:</label>
                         <input
                             type="date"
                             name="EOD"
                             value={user.EOD}
-                            onChange={handlechange}
-                            className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            onChange={handleChange}
+                            required
+                            className="px-4 py-3 border rounded-lg"
                         />
                     </div>
-
-                    {/* Submit Button */}
+                    <div className="flex flex-col">
+                        <label>Remarks:</label>
+                        <input
+                            type="textarea"
+                            name="Remarks"
+                            value={user.Remarks}
+                            onChange={handleChange}
+                            required
+                            className="px-4 py-3 border rounded-lg"
+                        />
+                    </div>
                     <button
                         type="submit"
-                        className="w-full py-3 mt-6 bg-teal-600 text-white rounded-lg shadow hover:bg-teal-700 transition duration-300"
+                        className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600"
                     >
-                        Submit
+                        Register
                     </button>
                 </form>
             </div>

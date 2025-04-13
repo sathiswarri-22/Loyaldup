@@ -21,7 +21,7 @@ const EnquiryStatus = () => {
       try {
         const token = localStorage.getItem('admintokens')
         console.log('Fetching enquiry status for EnquiryNo:', EnquiryNo);
-        const response = await axios.get(`https://loyality.chennaisunday.com/api/Enquirystatus/${EnquiryNo}`, {
+        const response = await axios.get(`http://localhost:5005/api/Enquirystatus/${EnquiryNo}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

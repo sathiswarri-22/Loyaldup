@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
+
 const Dashboard = () => {
     const role = localStorage.getItem('role');
     const [saleEnquiryData, setSaleEnquiryData] = useState([]);
@@ -13,18 +14,15 @@ const Dashboard = () => {
        
     const token = localStorage.getItem('admintokens');
     const Eid = localStorage.getItem('idstore');
-    const name = localStorage.getItem('name');
-    const email = localStorage.getItem('email');
+
     
         
 
     useEffect(() => {
-        if (!token || !Eid) return;
         const fetchData = async () => {
             try {
-                setLoading(true);
                 const response = await axios.get(
-                    `https://loyality.chennaisunday.com/api/getenquiryforsaletam/${Eid}`,
+                    `http://localhost:5005/api/getenquiryforsaletam/${Eid}`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
@@ -33,7 +31,7 @@ const Dashboard = () => {
                     }
                 );
                 setSaleEnquiryData(response.data.getdatas || []);
-                setLoading(false);
+                console.log("get data in service",response.data.getdatas);
             } catch (err) {
                 setLoading(false);
                 console.error("Error fetching data: ", err);
@@ -42,17 +40,17 @@ const Dashboard = () => {
         fetchData();
     }, [Eid, token]);
 
-    const workvisit = () => {
+    const workvisit = (clientName,companyName,AddressDetails) => {
         try {
-            router.push('/Serviceproject/Workvisit');    
+            router.push(`/ServiceProject/Workvisit?clientName=${clientName}&companyName=${companyName}&Address=${AddressDetails.Address}&Country=${AddressDetails.Country}&City=${AddressDetails.City}&PostalCode=${AddressDetails.PostalCode}&State=${AddressDetails.State}`);
         } catch (err) {
             console.log('Cannot go to the link', err);
         }
     };
-
-    const productrequest = () => {
+    
+    const productrequest = (companyName) => {
         try {
-            router.push('/Serviceproject/ProductRequest');
+            router.push(`/ServiceProject/ProductRequest?companyName=${companyName}`);
         } catch (err) {
             console.log('Cannot go to the link', err);
         }
@@ -64,6 +62,20 @@ const Dashboard = () => {
 
     const Inventory = () => {
         router.push('/SaleteamDasboard/Inventory');
+    };
+    
+    const servicedetails = (clientName) => {
+        console.log("i can get the clientName", clientName);
+        router.push(`/ServiceProject/Servicedetails?clientName=${clientName}`);
+    }
+    const ServiceDetails = () => {
+        router.push('/ServiceProject/Details');
+    };
+
+    
+
+    const GetService = () => {
+        router.push('/ServiceProject/ServiceInfo');
     };
 
     return (
@@ -83,6 +95,19 @@ const Dashboard = () => {
                             className="flex-1 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-300"
                         >
                             Inventory
+                        </button>
+                        <button
+                            onClick={ServiceDetails}
+                            className="flex-1 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-300"
+                        >
+                            Get Service Details
+                        </button>
+                       
+                        <button
+                            onClick={GetService}
+                            className="flex-1 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-300"
+                        >
+                            Get Service
                         </button>
                     </nav>
 
@@ -136,22 +161,32 @@ const Dashboard = () => {
                                                     <td className="px-4 py-2">{data?.Remarks || "N/A"}</td>
                                                     <td className="px-4 py-2">{data?.Action}</td>
                                                     
-                                                    {/* Buttons moved to a separate td */}
+                                                   
                                                     <td className="px-4 py-2">
                                                         {(role === "Service Engineer" || role === "Engineer") && (
                                                             <>
+                                                             <button 
+    onClick={() => workvisit(data?.LeadDetails?.clientName, data?.LeadDetails?.companyName, data?.AddressDetails)} 
+    className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition duration-300"
+>
+    Workvisits
+</button>
+
+
                                                                 <button
-                                                                    onClick={workvisit}
-                                                                    className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition duration-300"
-                                                                >
-                                                                    Workvisits
-                                                                </button>
-                                                                <button
-                                                                    onClick={productrequest}
+                                                                    onClick={() => productrequest(data?.LeadDetails?.companyName)}
                                                                     className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition duration-300"
                                                                 >
                                                                     Product request
                                                                 </button>
+                                                                {role=='Service Engineer'&&
+                                                                <button
+                                                                onClick={() => servicedetails(data?.LeadDetails?.clientName)}
+                                                                    className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition duration-300"
+                                                                >
+                                                                    Service details
+                                                                </button>
+                                                               }
                                                             </>
                                                         )}
                                                     </td>

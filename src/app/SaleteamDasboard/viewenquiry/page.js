@@ -35,7 +35,7 @@ const ViewEnquiryPage = () => {
       if (selectedEnquiries.length === 0) return alert("Please select at least one enquiry.");
 
       const response = await axios.put(
-        `https://loyality.chennaisunday.com/api/assignedto`,
+        `http://localhost:5005/api/assignedto`,
         {
           Eid: EidToAssign,
           EnquiryNo: selectedEnquiries,

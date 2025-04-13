@@ -57,7 +57,7 @@ const Salesorder = () => {
 
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('https://loyality.chennaisunday.com/api-inventory/get-product');
+        const response = await axios.get('http://localhost:5005/api-inventory/get-product');
         setProducts(response.data);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -162,7 +162,7 @@ const Salesorder = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        "https://loyality.chennaisunday.com/api-salesorder/create-salesorder",
+        "http://localhost:5005/api-salesorder/create-salesorder",
         formData,
         {
           headers: {

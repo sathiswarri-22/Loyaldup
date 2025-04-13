@@ -42,21 +42,21 @@ const SaleheadEnquiry = () => {
           alert("No token found. Please login as an admin.");
           return;
         }
-        const response = await axios.get('https://loyality.chennaisunday.com/api/getsalesheadEid', {
+        const response = await axios.get('http://localhost:5005/api/getsalesheadEid', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           }
         });
 
-        console.log('i got response', response);
-        if (Array.isArray(response.data.Eid)) {
-          setEids(response.data.Eid);
+        console.log('i got response', response.data.getallprofile);
+        if (Array.isArray(response.data.getallprofile)) {
+          setEids(response.data.getallprofile);
         } else {
           setEids([]);
         }
 
-        console.log('i got the eids', response.data.Eid);
+        console.log('i got the eids', response.data);
       } catch (err) {
         console.error('Error fetching EIDs:', err);
         setEids([]);
@@ -80,7 +80,7 @@ const SaleheadEnquiry = () => {
     }
 
     try {
-      const response = await axios.post('https://loyality.chennaisunday.com/api/leadentry', enquiry, {
+      const response = await axios.post('http://localhost:5005/api/leadentry', enquiry, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -325,8 +325,8 @@ const SaleheadEnquiry = () => {
             >
               <option value="">Select Sales Head</option>
               {Eids.map((eid, index) => (
-                <option key={index} value={eid}>
-                  {eid}
+                <option key={index} value={eid.Eid}>
+                  {eid.Eid}-{eid.name}
                 </option>
               ))}
             </select>

@@ -11,7 +11,7 @@ const TodayView = () => {
 
   const fetchEnquiries = async () => {
     try {
-      const response = await axios.get('https://loyality.chennaisunday.com/api/cc/todayviewnocustomer', {
+      const response = await axios.get('http://localhost:5005/api/cc/todayviewnocustomer', {
         headers: {
           Authorization: `Bearer ${token}`,
         },

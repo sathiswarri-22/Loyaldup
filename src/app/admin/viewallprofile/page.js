@@ -17,7 +17,7 @@ const Viewallprofile = () => {
   useEffect(() => {
     setLoading(true);
 
-    axios.get('https://loyality.chennaisunday.com/api/adminviewallprofile', {
+    axios.get('http://localhost:5005/api/adminviewallprofile', {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'multipart/form-data',
@@ -49,8 +49,8 @@ const Viewallprofile = () => {
         {profileData.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {profileData.map((profile, index) => {
-              const fileUrl = `https://loyality.chennaisunday.com/api/uploads/${profile.Fileupload}`;
-              const profileImg = profile.profileimg ? `https://loyality.chennaisunday.com/api/uploads/${profile.profileimg}` : '';
+              const fileUrl = `http://localhost:5005/api/uploads/${profile.Fileupload}`;
+              const profileImg = profile.profileimg ? `http://localhost:5005/api/uploads/${profile.profileimg}` : '';
 
               return (
                 <div key={index} className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out">

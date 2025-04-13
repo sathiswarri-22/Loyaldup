@@ -14,7 +14,7 @@ const Yes = () => {
   
   const fetchEnquiries = async () => {
     try {
-      const response = await axios.get('https://loyality.chennaisunday.com/api/cc/todayviewyescustomer', {
+      const response = await axios.get('http://localhost:5005/api/cc/todayviewyescustomer', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',

@@ -2,15 +2,16 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useSearchParams, useRouter } from 'next/navigation';
+import { ChevronLeft } from 'lucide-react';
 
 const Productrequest = () => {
   const [product, setProduct] = useState({
     name: '',
     email: '',
-    companyname: '',
+    companyName: '',
     contactpersonname: '',
-    quantity: '',
-    productname: '',
+    productDetails: [{ productname: '', quantity: '' }],
     Description: '',
     Employeeid: '',
     Eid: ''
@@ -18,97 +19,127 @@ const Productrequest = () => {
 
   const [errorMessage, setErrorMessage] = useState('');
   const [Eids, setEids] = useState([]);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = localStorage.getItem("admintokens");
+  const companyName = searchParams.get('companyName'); 
+  const Eid = localStorage.getItem('idstore');
 
   useEffect(() => {
-    const storedName = localStorage.getItem('name');
-    const storedEmail = localStorage.getItem('email');
-    if (storedName) {
-      setProduct(prevState => ({ ...prevState, name: storedName }));
-    }
-    if (storedEmail) {
-      setProduct(prevState => ({ ...prevState, email: storedEmail }));
-    }
-
-    // Fetch Employee IDs
-    const fetchEids = async () => {
+    const fetchData = async () => {
       try {
-        const token = localStorage.getItem("admintokens");
         if (!token) {
           alert("No token found. Please login as an admin.");
           return;
         }
-        const response = await axios.get('https://loyality.chennaisunday.com/api/getsalesemployeeEid', {
+
+        const response = await axios.get(`http://localhost:5005/api/getname&email?Eid=${Eid}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        const { name, email } = response.data;
+
+        setProduct(prevState => ({
+          ...prevState,
+          name,
+          email,
+          companyName: companyName || prevState.companyName,
+          Employeeid: Eid || prevState.Employeeid
+        }));
+
+        const eidsResponse = await axios.get('http://localhost:5005/api/getsalesemployeeEid', {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
         });
 
-        if (Array.isArray(response.data.Eid)) {
-          setEids(response.data.Eid);
-        } else {
-          setEids([]);
-        }
-      } catch (err) {
-        console.error('Error fetching EIDs:', err);
-        setEids([]);
+        setEids(eidsResponse.data.getallEid);
+      } catch (error) {
+        console.error('Error fetching data:', error);
       }
     };
 
-    fetchEids();
-  }, []);
+    fetchData();
+  }, [token, Eid]);
 
-  const handlesubmit = async (e) => {
-    e.preventDefault();
+  const handleChange = (e, index, field) => {
+    const { name, value } = e.target;
 
-    if (!product.Eid || !product.name || !product.email || !product.Description || !product.Employeeid) {
-      setErrorMessage('Please fill in all required fields.');
-      return;
+    if (name === "productname" || name === "quantity") {
+      const updatedProductDetails = [...product.productDetails];
+      updatedProductDetails[index][name] = value;
+      setProduct(prevState => ({
+        ...prevState,
+        productDetails: updatedProductDetails,
+      }));
+    } else {
+      setProduct(prevState => ({
+        ...prevState,
+        [name]: value,
+      }));
     }
+  };
 
-    const token = localStorage.getItem('admintokens');
-    if (!token) {
-      alert("No token found. Please login as an admin.");
+  const addProductField = () => {
+    setProduct(prevState => ({
+      ...prevState,
+      productDetails: [...prevState.productDetails, { productname: '', quantity: '' }],
+    }));
+  };
+
+  const removeProductField = (index) => {
+    const updatedProductDetails = [...product.productDetails];
+    updatedProductDetails.splice(index, 1);
+    setProduct(prevState => ({
+      ...prevState,
+      productDetails: updatedProductDetails,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMessage('');
+
+    if (
+      !product.name ||
+      !product.email ||
+      !product.Description ||
+      !product.Employeeid ||
+      !product.Eid ||
+      product.productDetails.some(p => !p.productname || !p.quantity)
+    ) {
+      setErrorMessage('Please fill in all required fields and product names.');
       return;
     }
 
     try {
-      const response = await axios.post('https://loyality.chennaisunday.com/api/productrequest', product, {
+      const response = await axios.post('http://localhost:5005/api/productrequest', product, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         }
       });
-      console.log(response.data);
-      alert('Lead entry successfully submitted');
+      alert('Product request submitted successfully!');
 
       setProduct({
         name: '',
         email: '',
-        companyname: '',
+        companyName: '',
         contactpersonname: '',
-        quantity: '',
-        productname: '',
+        productDetails: [{ productname: '', quantity: '' }],
         Description: '',
         Employeeid: '',
         Eid: ''
       });
     } catch (err) {
-      console.log('Error submitting lead entry:', err);
-      if (err.response) {
-        alert(`Error: ${err.response.data.message}`);
-      } else {
-        alert('Something went wrong, please try again later.');
-      }
+      console.error('Error submitting product request:', err);
+      alert(err.response?.data?.message || 'Something went wrong, please try again later.');
     }
   };
 
-  const handlechange = (e) => {
-    const { name, value } = e.target;
-    setProduct({
-      ...product,
-      [name]: value,
-    });
+  const handlenavigate = () => {
+    router.push('/ServiceProject/Dasboard');
   };
 
   return (
@@ -119,14 +150,21 @@ const Productrequest = () => {
           <h2 className="text-2xl text-gray-700">Submit a Product Request</h2>
         </div>
 
-        <form onSubmit={handlesubmit} className="space-y-6">
+        <button
+          onClick={handlenavigate}
+          className="p-3 bg-white text-black rounded-full shadow-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500 mb-6"
+        >
+          <ChevronLeft size={24} />
+        </button>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="flex flex-col">
               <label className="font-medium text-gray-600">Your Name:</label>
               <input
                 name="name"
                 value={product.name}
-                onChange={handlechange}
+                onChange={handleChange}
                 placeholder="Enter your name"
                 required
                 className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
@@ -136,9 +174,9 @@ const Productrequest = () => {
             <div className="flex flex-col">
               <label className="font-medium text-gray-600">Company Name:</label>
               <input
-                name="companyname"
-                value={product.companyname}
-                onChange={handlechange}
+                name="companyName"
+                value={product.companyName}
+                onChange={handleChange}
                 placeholder="Enter company name"
                 required
                 className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
@@ -152,72 +190,8 @@ const Productrequest = () => {
               <input
                 name="contactpersonname"
                 value={product.contactpersonname}
-                onChange={handlechange}
+                onChange={handleChange}
                 placeholder="Enter contact person name"
-                required
-                className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label className="font-medium text-gray-600">Product Quantity:</label>
-              <input
-                name="quantity"
-                value={product.quantity}
-                onChange={handlechange}
-                placeholder="Enter product quantity"
-                required
-                className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="flex flex-col">
-              <label className="font-medium text-gray-600">Product Name:</label>
-              <input
-                name="productname"
-                value={product.productname}
-                onChange={handlechange}
-                placeholder="Enter product name"
-                required
-                className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label className="font-medium text-gray-600">Your Email:</label>
-              <input
-                name="email"
-                value={product.email}
-                onChange={handlechange}
-                placeholder="Enter your email"
-                required
-                className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="flex flex-col">
-              <label className="font-medium text-gray-600">Employee ID:</label>
-              <input
-                name="Employeeid"
-                value={product.Employeeid}
-                onChange={handlechange}
-                placeholder="Enter employee ID"
-                required
-                className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label className="font-medium text-gray-600">Remarks:</label>
-              <input
-                name="Description"
-                value={product.Description}
-                onChange={handlechange}
-                placeholder="Enter remarks"
                 required
                 className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
@@ -225,19 +199,96 @@ const Productrequest = () => {
           </div>
 
           <div className="flex flex-col">
+            <label>Product Details:</label>
+            {product.productDetails.map((item, index) => (
+              <div key={index} className="flex gap-2 items-center">
+                <input
+                  name="productname"
+                  value={item.productname}
+                  onChange={(e) => handleChange(e, index, 'productname')}
+                  placeholder={`Product Name ${index + 1}`}
+                  required
+                  className="px-4 py-3 border"
+                />
+                <input
+                  name="quantity"
+                  type="number"
+                  value={item.quantity}
+                  onChange={(e) => handleChange(e, index, 'quantity')}
+                  placeholder={`Quantity ${index + 1}`}
+                  required
+                  className="px-4 py-3 border"
+                />
+                {product.productDetails.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeProductField(index)}
+                    className="px-3 py-2 bg-red-500 text-white"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addProductField}
+              className="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+            >
+              Add Another Product
+            </button>
+          </div>
+
+          <div className="flex flex-col">
+            <label className="font-medium text-gray-600">Your Email:</label>
+            <input
+              name="email"
+              value={product.email}
+              onChange={handleChange}
+              placeholder="Enter your email"
+              required
+              className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="font-medium text-gray-600">Employee ID:</label>
+            <input
+              name="Employeeid"
+              value={product.Employeeid}
+              onChange={handleChange}
+              placeholder="Enter employee ID"
+              required
+              className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="font-medium text-gray-600">Remarks:</label>
+            <input
+              name="Description"
+              value={product.Description}
+              onChange={handleChange}
+              placeholder="Enter remarks"
+              required
+              className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
+          </div>
+
+          <div className="flex flex-col">
             <label className="font-medium text-gray-600">Assign Employee ID:</label>
             <select
               name="Eid"
               value={product.Eid}
-              onChange={handlechange}
+              onChange={handleChange}
               required
               className="px-4 py-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
               <option value="">Select Employee ID</option>
               {Eids.length > 0 ? (
-                Eids.map((Eid, index) => (
-                  <option key={index} value={Eid}>
-                    {Eid}
+                Eids.map((eid, index) => (
+                  <option key={index} value={eid.Eid}>
+                    {eid.Eid} - {eid.name}
                   </option>
                 ))
               ) : (

@@ -14,11 +14,7 @@ const Dashboard = () => {
   const token = localStorage.getItem('admintokens');
 
 
-  useEffect(() => {
-    if (!token || !role) {
-      router.push("/login");
-    }
-  }, [token, role, router]);
+  
 
   const handleAddUsers = () => {
 router.push('/admin/register')
@@ -43,8 +39,24 @@ router.push('/admin/resetemail')
   const handleLeadEnquiry = () => {
     router.push('/admin/AllLeadEnquiry')
   };
-
-
+  const handleCompany = () => {
+    router.push('/admin/Getresources')
+  }
+  const handleAllcustomer = () => {
+    router.push('/admin/Allcustomerget')
+  }
+  const handleServiceDetails = () => {
+    router.push('/admin/ServiceDetails')
+  };
+  const handleProductRequest = () => {
+    router.push('/admin/ProductRequest')
+  };
+  const handlequotationRequest = () => {
+    router.push('/admin/Quotation?EnquiryNo')
+  };
+  const handlePORequest = () => {
+    router.push('/admin/Purchaseorder')
+  };
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-teal-100 to-teal-300">
       <div className="w-full max-w-7xl p-8 space-y-6 bg-white rounded-lg shadow-lg mx-auto my-8">
@@ -89,6 +101,42 @@ router.push('/admin/resetemail')
           >
             All Lead Enquiry
           </button>
+          <button
+            onClick={handleCompany}
+            className="py-3 text-white bg-teal-600 rounded-lg shadow-md hover:bg-teal-700 transition duration-300 ease-in-out transform hover:scale-105"
+          >
+            All Companyresources
+          </button>
+          <button
+            onClick={handleAllcustomer}
+            className="py-3 text-white bg-teal-600 rounded-lg shadow-md hover:bg-teal-700 transition duration-300 ease-in-out transform hover:scale-105"
+          >
+            AllCustomer
+          </button>
+          <button
+            onClick={handleServiceDetails}
+            className="py-3 text-white bg-teal-600 rounded-lg shadow-md hover:bg-teal-700 transition duration-300 ease-in-out transform hover:scale-105"
+          >
+            Service Details
+          </button>
+          <button
+            onClick={handleProductRequest}
+            className="py-3 text-white bg-teal-600 rounded-lg shadow-md hover:bg-teal-700 transition duration-300 ease-in-out transform hover:scale-105"
+          >
+            Product Request
+          </button>
+          <button
+            onClick={handlequotationRequest}
+            className="py-3 text-white bg-teal-600 rounded-lg shadow-md hover:bg-teal-700 transition duration-300 ease-in-out transform hover:scale-105"
+          >
+           Quatation Request
+          </button>
+          <button
+            onClick={handlePORequest}
+            className="py-3 text-white bg-teal-600 rounded-lg shadow-md hover:bg-teal-700 transition duration-300 ease-in-out transform hover:scale-105"
+          >
+           PO Request
+          </button>
         </div>
 
         {/* Tabs for Content */}
@@ -117,6 +165,7 @@ router.push('/admin/resetemail')
           >
             Lead Enquiries
           </button>
+         
         </div>
 
         {/* Content Display */}

@@ -26,7 +26,7 @@ const PasswordReset = () => {
     }
 
     try {
-      const response = await axios.put('https://loyality.chennaisunday.com/api/reset-password', passwords);
+      const response = await axios.put('http://localhost:5005/api/reset-password', passwords);
       console.log(response.data);
       alert('Password has been reset');
       router.push('/');

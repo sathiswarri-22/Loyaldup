@@ -28,7 +28,7 @@ const EmailReset = () => {
     }
 
     try {
-      const response = await axios.put('https://loyality.chennaisunday.com/api/reset-email', formData , {
+      const response = await axios.put('http://localhost:5005/api/reset-email', formData , {
         headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",

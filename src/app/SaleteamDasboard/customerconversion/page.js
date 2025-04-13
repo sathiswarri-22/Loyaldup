@@ -111,7 +111,7 @@ const handlecustomerchange = (e)=>{
 
   const fetchDataFromAPI = async (EnquiryNo) => {
     try {
-      const response = await axios.get(`https://loyality.chennaisunday.com/api/cc/Enquiryget/${EnquiryNo}`, {
+      const response = await axios.get(`http://localhost:5005/api/cc/Enquiryget/${EnquiryNo}`, {
         headers: { 'Authorization': `Bearer ${token}`}
       });
       console.log("Fetched data:", response.data);
@@ -145,7 +145,7 @@ const handlecustomerchange = (e)=>{
   
     try {
       const response = await axios.put(
-        `https://loyality.chennaisunday.com/api/cc/getcustomerconverstion/${Eid}/${update}/${updateId}`,
+        `http://localhost:5005/api/cc/getcustomerconverstion/${Eid}/${update}/${updateId}`,
         updatedCustomer,
         {
           headers: {
@@ -188,7 +188,7 @@ const handlecustomerchange = (e)=>{
     setSuccess(null);
 
     try {
-      const response = await axios.post('https://loyality.chennaisunday.com/api/customerconversion', { Eid, ...customer }, {
+      const response = await axios.post('http://localhost:5005/api/customerconversion', { Eid, ...customer }, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',

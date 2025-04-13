@@ -26,7 +26,7 @@ const PasswordReset = () => {
       return;
     }
     try {
-      const response = await axios.put('https://loyality.chennaisunday.com/api/reset-headerpassword', passwords,{
+      const response = await axios.put('http://localhost:5005/api/reset-headerpassword', passwords,{
         headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
