@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; 
-import { useRouter } from 'next/navigation';
+import axios from 'axios';
+import { useRouter, useSearchParams } from 'next/navigation';
 import PDFPage from './pdf';
 
 const App = () => {
@@ -12,42 +12,54 @@ const App = () => {
     uom: '',
     quantity: '',
     unitPrice: '',
-    gst: '', // Initially set to empty
+    gst: '',
     total: 0,
   }]);
+
   const [goodsReturn, setGoodsReturn] = useState('Yes');
   const [interestRate, setInterestRate] = useState('24%');
   const [jurisdiction, setJurisdiction] = useState('Chennai');
   const [certification, setCertification] = useState('True');
-  const [loading, setLoading] = useState(false); 
-  const [freight, setFreight] = useState(''); // Initially set to empty
-  const [gst, setGst] = useState(''); // Initially set to empty
+  const [freight, setFreight] = useState('');
+  const [gstPercentage, setGstPercentage] = useState('18'); // Default GST percentage
+  const [calculatedGst, setCalculatedGst] = useState('0'); // Calculated GST amount
+  const [financialYear, setFinancialYear] = useState('24-25');
+  const [generatedRefNumber, setGeneratedRefNumber] = useState('');
+  const [invoiceData, setInvoiceData] = useState(null);
   const [pdfPage, setPdfPage] = useState(false);
-  const [token, setToken] = useState(localStorage.getItem('admintokens'));
-  const router = useRouter(); 
+
+  const [name, setName] = useState('');
+  const [address, setAddress] = useState('');
+  const [gstNumber, setGstNumber] = useState('');
+
+  const [yourRef, setYourRef] = useState('');
+  const [issueDate, setIssueDate] = useState('');
+
+  const token = typeof window !== "undefined" ? localStorage.getItem('admintokens') : null;
+  const Eid = typeof window !== "undefined" ? localStorage.getItem('idstore') : null;
+  const router = useRouter();
+  const search = useSearchParams();
+  const EnquiryNo = search.get('EnquiryNo');
 
   useEffect(() => {
     if (!token) {
       router.push('/login');
     }
-  }, [token, router]);
+  }, [token]);
+
+  // Calculate totals whenever rows or freight changes
+  useEffect(() => {
+    const gstValue = calculateTotalGST();
+    setCalculatedGst(gstValue);
+  }, [rows, freight, gstPercentage]);
 
   const handleTermsChange = (e, field) => {
     switch (field) {
-      case 'goodsReturn':
-        setGoodsReturn(e.target.value);
-        break;
-      case 'interestRate':
-        setInterestRate(e.target.value);
-        break;
-      case 'jurisdiction':
-        setJurisdiction(e.target.value);
-        break;
-      case 'certification':
-        setCertification(e.target.value);
-        break;
-      default:
-        break;
+      case 'goodsReturn': setGoodsReturn(e.target.value); break;
+      case 'interestRate': setInterestRate(e.target.value); break;
+      case 'jurisdiction': setJurisdiction(e.target.value); break;
+      case 'certification': setCertification(e.target.value); break;
+      default: break;
     }
   };
 
@@ -55,12 +67,10 @@ const App = () => {
     const updatedRows = [...rows];
     updatedRows[index][field] = e.target.value;
 
-    // Recalculate the total for the row whenever any input changes
-    if (field === 'quantity' || field === 'unitPrice' || field === 'gst') {
+    if (['quantity', 'unitPrice'].includes(field)) {
       const quantity = parseFloat(updatedRows[index].quantity) || 0;
       const unitPrice = parseFloat(updatedRows[index].unitPrice) || 0;
-      const gst = parseFloat(updatedRows[index].gst) || 0;
-      const total = (quantity * unitPrice); // GST is calculated separately
+      const total = quantity * unitPrice;
       updatedRows[index].total = total.toFixed(2);
     }
 
@@ -68,7 +78,18 @@ const App = () => {
   };
 
   const addRow = () => {
-    setRows([...rows, { sno: '', hsnCode: '', unitDescription: '', uom: '', quantity: '', unitPrice: '', gst: '', total: 0 }]);
+    setRows([...rows, {
+      sno: '', hsnCode: '', unitDescription: '', uom: '', quantity: '',
+      unitPrice: '', gst: gstPercentage, total: 0
+    }]);
+  };
+
+  const removeRow = (index) => {
+    if (rows.length > 1) {
+      const updatedRows = [...rows];
+      updatedRows.splice(index, 1);
+      setRows(updatedRows);
+    }
   };
 
   const calculateSubtotal = () => {
@@ -76,28 +97,33 @@ const App = () => {
   };
 
   const calculateTotalGST = () => {
-    // Sum up the GST from each row
-    return rows.reduce((acc, row) => {
-      const quantity = parseFloat(row.quantity) || 0;
-      const unitPrice = parseFloat(row.unitPrice) || 0;
-      const gst = parseFloat(row.gst) || 0;
-      const gstAmount = (quantity * unitPrice * gst) / 100;
-      return acc + gstAmount;
-    }, 0).toFixed(2);
+    // Get subtotal
+    const subtotal = calculateSubtotal();
+    // Get freight as a number
+    const freightValue = parseFloat(freight || 0);
+    // Calculate GST on subtotal and freight
+    const gstAmount = ((subtotal + freightValue) * parseFloat(gstPercentage || 0)) / 100;
+    
+    return gstAmount.toFixed(2);
   };
 
   const calculateTotalPayable = () => {
     const subtotal = calculateSubtotal();
-    const totalGST = calculateTotalGST();
-    return (subtotal + parseFloat(freight || 0) + parseFloat(totalGST || 0)).toFixed(2); // Round to 2 decimal places
+    const freightValue = parseFloat(freight || 0);
+    const gstAmount = parseFloat(calculatedGst);
+    
+    return (subtotal + freightValue + gstAmount).toFixed(2);
   };
 
   const calculateRoundOff = () => {
-    const totalPayable = calculateTotalPayable();
-    return (Math.round(totalPayable) - totalPayable).toFixed(2); // Round to nearest integer and find round off
+    const totalPayable = parseFloat(calculateTotalPayable());
+    return (Math.round(totalPayable) - totalPayable).toFixed(2);
   };
 
-  const isFormFilled = goodsReturn && interestRate && jurisdiction && certification && rows.every(row => row.hsnCode && row.unitDescription && row.uom && row.quantity && row.unitPrice);
+  const isFormFilled = financialYear && goodsReturn && interestRate && jurisdiction &&
+    certification && rows.every(row =>
+      row.hsnCode && row.unitDescription && row.uom && row.quantity && row.unitPrice
+    ) && name && address && gstNumber && yourRef && issueDate;
 
   const createInvoice = async () => {
     const goodsReturnBool = goodsReturn === 'Yes';
@@ -108,228 +134,246 @@ const App = () => {
       interestRate: interestRateNum,
       jurisdiction,
       certification,
+      Eid,
+      EnquiryNo,
+      name,
+      address,
+      gstField: gstNumber,
+      yourRef,
+      issueDate,
       rows: rows.map(row => ({
-        ...row,
         itemName: row.unitDescription,
+        quantity: row.quantity,
+        unitPrice: row.unitPrice,
+        total: row.total
       })),
       freight,
-      gst: calculateTotalGST(), // Add the total GST calculated from all rows
+      gst: calculatedGst,
       subtotal: calculateSubtotal(),
       roundOff: calculateRoundOff(),
       totalPayable: calculateTotalPayable(),
+      financialYear,
     };
 
     try {
-      const response = await axios.post('http://localhost:5005/api-purchaseorder/create-purchaseorder', orderData, {
+      const response = await axios.post('http://localhost:5005/api-invoice/invoice', orderData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
-      if (response.status === 200) {
-        alert("Purchase order created successfully!");
-        setPdfPage(true); // Go to the PDF page
-      }
+      setGeneratedRefNumber(response.data.referenceNumber);
+      setInvoiceData(response.data.invoice);
+      setPdfPage(true);
     } catch (error) {
-      console.error("Error creating purchase order", error);
-      alert("Failed to create purchase order. Please try again.");
+      console.error("Invoice creation failed:", error.response?.data || error.message);
     }
-  };
-
-  const generatePDF = () => {
-    setPdfPage(true);
   };
 
   return (
     <>
       {!pdfPage ? (
-        <div className="form-container">
-          <h2 className="text-xl">Perfoma Invoice</h2>
-          
-          <div className="mt-4">
-            <h3 className="text-lg font-semibold mb-4">Product Details</h3>
-            <div className="overflow-x-auto shadow-lg rounded-lg">
-              <table className="min-w-full bg-white border border-gray-300">
+        <div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg p-8">
+          <div className="flex justify-between items-center mb-8 border-b pb-4">
+            <h2 className="text-2xl font-bold text-gray-800">Proforma Invoice</h2>
+          </div>
+
+          {/* Customer Details */}
+          <div className="bg-gray-50 rounded-lg p-6 mb-8">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">Customer Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Customer Name</label>
+                <input value={name} onChange={(e) => setName(e.target.value)} className="w-full p-3 border-gray-300 border rounded-md" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Address</label>
+                <input value={address} onChange={(e) => setAddress(e.target.value)} className="w-full p-3 border-gray-300 border rounded-md" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">GST Number</label>
+                <input value={gstNumber} onChange={(e) => setGstNumber(e.target.value)} className="w-full p-3 border-gray-300 border rounded-md" />
+              </div>
+            </div>
+          </div>
+
+          {/* Invoice Details */}
+          <div className="bg-gray-50 rounded-lg p-6 mb-8">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">Invoice Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Financial Year</label>
+                <input value={financialYear} onChange={(e) => setFinancialYear(e.target.value)} className="w-full p-3 border-gray-300 border rounded-md" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Goods Return</label>
+                <select value={goodsReturn} onChange={(e) => handleTermsChange(e, 'goodsReturn')} className="w-full p-3 border-gray-300 border rounded-md">
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Interest Rate</label>
+                <input value={interestRate} onChange={(e) => handleTermsChange(e, 'interestRate')} className="w-full p-3 border-gray-300 border rounded-md" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Jurisdiction</label>
+                <input value={jurisdiction} onChange={(e) => handleTermsChange(e, 'jurisdiction')} className="w-full p-3 border-gray-300 border rounded-md" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Certification</label>
+                <select value={certification} onChange={(e) => handleTermsChange(e, 'certification')} className="w-full p-3 border-gray-300 border rounded-md">
+                  <option value="True">True</option>
+                  <option value="False">False</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Your Ref</label>
+                <input value={yourRef} onChange={(e) => setYourRef(e.target.value)} className="w-full p-3 border-gray-300 border rounded-md" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Issue Date</label>
+                <input 
+                  type="date" 
+                  value={issueDate} 
+                  onChange={(e) => setIssueDate(e.target.value)} 
+                  className="w-full p-3 border-gray-300 border rounded-md" 
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Freight</label>
+                <input type="number" value={freight} onChange={(e) => setFreight(e.target.value)} className="w-full p-3 border-gray-300 border rounded-md" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">GST Percentage</label>
+                <input 
+                  type="number" 
+                  value={gstPercentage} 
+                  onChange={(e) => setGstPercentage(e.target.value)} 
+                  className="w-full p-3 border-gray-300 border rounded-md" 
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Product Table Card */}
+          <div className="bg-white rounded-lg shadow p-1 mb-8">
+            <div className="overflow-x-auto">
+              <table className="w-full">
                 <thead>
-                  <tr className="text-left bg-gray-100">
-                    <th className="px-4 py-2 font-semibold text-sm text-gray-600">S. No</th>
-                    <th className="px-4 py-2 font-semibold text-sm text-gray-600">HSN Code</th>
-                    <th className="px-4 py-2 font-semibold text-sm text-gray-600">Unit Description</th>
-                    <th className="px-4 py-2 font-semibold text-sm text-gray-600">UOM</th>
-                    <th className="px-4 py-2 font-semibold text-sm text-gray-600">Quantity</th>
-                    <th className="px-4 py-2 font-semibold text-sm text-gray-600">Unit Price</th>
-                    <th className="px-4 py-2 font-semibold text-sm text-gray-600">GST (%)</th>
-                    <th className="px-4 py-2 font-semibold text-sm text-gray-600">Total</th>
+                  <tr className="bg-gray-100 text-left">
+                    {['S.No', 'HSN Code', 'Unit Description', 'UOM', 'Quantity', 'Unit Price', 'Total', ''].map((heading) => (
+                      <th key={heading} className="px-4 py-3 text-gray-600 font-semibold text-sm">{heading}</th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
                   {rows.map((row, index) => (
-                    <tr key={index} className="border-t border-gray-200">
-                      <td className="px-4 py-2">
-                        <input
-                          type="text"
-                          placeholder="S. No"
-                          value={row.sno}
-                          onChange={(e) => handleRowChange(index, e, 'sno')}
-                          className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                        />
-                      </td>
-                      <td className="px-4 py-2">
-                        <input
-                          type="text"
-                          placeholder="HSN Code"
-                          value={row.hsnCode}
-                          onChange={(e) => handleRowChange(index, e, 'hsnCode')}
-                          className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                        />
-                      </td>
-                      <td className="px-4 py-2">
-                        <input
-                          type="text"
-                          placeholder="Unit Description"
-                          value={row.unitDescription}
-                          onChange={(e) => handleRowChange(index, e, 'unitDescription')}
-                          className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                        />
-                      </td>
-                      <td className="px-4 py-2">
-                        <input
-                          type="text"
-                          placeholder="UOM"
-                          value={row.uom}
-                          onChange={(e) => handleRowChange(index, e, 'uom')}
-                          className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                        />
-                      </td>
-                      <td className="px-4 py-2">
-                        <input
-                          type="number"
-                          placeholder="Quantity"
-                          value={row.quantity}
-                          onChange={(e) => handleRowChange(index, e, 'quantity')}
-                          className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                        />
-                      </td>
-                      <td className="px-4 py-2">
-                        <input
-                          type="number"
-                          placeholder="Unit Price"
-                          value={row.unitPrice}
-                          onChange={(e) => handleRowChange(index, e, 'unitPrice')}
-                          className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                        />
-                      </td>
-                      <td className="px-4 py-2">
-                        <input
-                          type="number"
-                          placeholder="GST (%)"
-                          value={row.gst}
-                          onChange={(e) => handleRowChange(index, e, 'gst')}
-                          className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                        />
-                      </td>
-                      <td className="px-4 py-2">
-                        {row.total ? `₹${row.total}` : '₹0.00'}
+                    <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
+                      {['sno', 'hsnCode', 'unitDescription', 'uom', 'quantity', 'unitPrice'].map((field) => (
+                        <td key={field} className="px-4 py-3">
+                          <input
+                            type="text"
+                            value={row[field]}
+                            onChange={(e) => handleRowChange(index, e, field)}
+                            className="w-full px-4 py-2 border-gray-300 border rounded-md"
+                          />
+                        </td>
+                      ))}
+                      <td className="px-4 py-3">{row.total}</td>
+                      <td className="px-4 py-3">
+                        <button
+                          type="button"
+                          className="text-red-600"
+                          onClick={() => removeRow(index)}
+                        >
+                          Remove
+                        </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              <button
-                onClick={addRow}
-                className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
-              >
-                Add Row
-              </button>
             </div>
           </div>
 
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-4">Payment Details</h3>
-            <div>
-              <label className="block text-sm">Goods Return:</label>
-              <select
-                value={goodsReturn}
-                onChange={(e) => handleTermsChange(e, 'goodsReturn')}
-                className="w-full p-2 border rounded"
-              >
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm mt-4">Interest Rate (%):</label>
-              <input
-                type="text"
-                value={interestRate}
-                onChange={(e) => handleTermsChange(e, 'interestRate')}
-                className="w-full p-2 border rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm mt-4">Jurisdiction:</label>
-              <input
-                type="text"
-                value={jurisdiction}
-                onChange={(e) => handleTermsChange(e, 'jurisdiction')}
-                className="w-full p-2 border rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm mt-4">Certification:</label>
-              <input
-                type="text"
-                value={certification}
-                onChange={(e) => handleTermsChange(e, 'certification')}
-                className="w-full p-2 border rounded"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm mt-4">Freight:</label>
-              <input
-                type="number"
-                value={freight}
-                onChange={(e) => setFreight(e.target.value)}
-                className="w-full p-2 border rounded"
-              />
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-4">Total Payable</h3>
-            <div>
-              <p>Subtotal: ₹{calculateSubtotal().toFixed(2)}</p>
-              <p>Freight: ₹{freight}</p>
-              <p>GST: ₹{calculateTotalGST()}</p>
-              <p>Round Off: ₹{calculateRoundOff()}</p>
-              <p>Total Payable: ₹{calculateTotalPayable()}</p>
-            </div>
-          </div>
-
-          <div className="mt-6">
+          {/* Add row button */}
+          <div className="flex justify-end mb-4">
             <button
-              onClick={createInvoice}
-              disabled={!isFormFilled}
-              className="px-6 py-2 bg-green-500 text-white rounded-md"
+              type="button"
+              onClick={addRow}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg"
             >
-              Create Purchase Order
+              Add Row
             </button>
+          </div>
 
+          {/* Subtotal and Total Calculation */}
+          <div className="flex justify-between mb-8">
+            <div className="w-1/2 pr-2">
+              <label className="block text-sm font-medium text-gray-600">Subtotal</label>
+              <input
+                type="text"
+                value={calculateSubtotal().toFixed(2)}
+                readOnly
+                className="w-full p-3 border-gray-300 border rounded-md bg-gray-100"
+              />
+            </div>
+            <div className="w-1/2 pl-2">
+              <label className="block text-sm font-medium text-gray-600">Total GST</label>
+              <input
+                type="text"
+                value={calculatedGst}
+                readOnly
+                className="w-full p-3 border-gray-300 border rounded-md bg-gray-100"
+              />
+            </div>
+          </div>
+
+          {/* Total Payable Calculation */}
+          <div className="flex justify-between mb-8">
+            <div className="w-1/2 pr-2">
+              <label className="block text-sm font-medium text-gray-600">Total Payable</label>
+              <input
+                type="text"
+                value={calculateTotalPayable()}
+                readOnly
+                className="w-full p-3 border-gray-300 border rounded-md bg-gray-100"
+              />
+            </div>
+            <div className="w-1/2 pl-2">
+              <label className="block text-sm font-medium text-gray-600">Round Off</label>
+              <input
+                type="text"
+                value={calculateRoundOff()}
+                readOnly
+                className="w-full p-3 border-gray-300 border rounded-md bg-gray-100"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end">
             <button
-              onClick={generatePDF}
+              type="button"
               disabled={!isFormFilled}
-              className="ml-4 px-6 py-2 bg-blue-500 text-white rounded-md"
+              onClick={createInvoice}
+              className={`px-6 py-3 ${isFormFilled ? 'bg-green-600' : 'bg-gray-400'} text-white rounded-lg`}
             >
-              Generate PDF
+              Create Invoice
             </button>
           </div>
         </div>
       ) : (
-        <PDFPage rows={rows} freight={freight} gst={gst} />
+        <PDFPage 
+          invoice={invoiceData}  
+          rows={rows}
+          freight={freight}
+          gst={calculatedGst}
+          invoiceData={invoiceData}
+          name={name}
+          address={address}
+          gstNumber={gstNumber} 
+        />
       )}
     </>
   );

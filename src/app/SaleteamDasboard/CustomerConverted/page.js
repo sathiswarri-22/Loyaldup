@@ -52,16 +52,7 @@ const CompletedEnquiries = () => {
   router.push('/SaleteamDasboard/SalesOrder')
  }
 
- const purchaseOrder = (EnquiryNo) => {
-  // Navigate to PurchaseOrder page with enquiryNo
-  router.push(`/SaleteamDasboard/PurchaseOrder?EnquiryNo=${EnquiryNo}`);
- }
-
- const perfomaInvoice = (EnquiryNo) => {
-  router.push(`/SaleteamDasboard/Perfomainvoice?EnquiryNo=${EnquiryNo}`);
  
-
- }
  
 
  const handleBackClick = () => {
@@ -103,20 +94,7 @@ const CompletedEnquiries = () => {
                   <td className="px-4 py-2 text-sm text-gray-700">{conversation.Convertedstatus}</td>
                   <td className="px-4 py-2 text-sm text-gray-700 flex space-x-4 items-center">
                     {/* Purchase Order Button */}
-                    <button
-                      onClick={() => purchaseOrder(conversation.EnquiryNo)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none transition duration-300 transform hover:scale-105"
-                    >
-                      Purchase Order
-                    </button>
-
-                    {/* Perfoma Invoice Button */}
-                    <button
-                      onClick={() => perfomaInvoice(conversation.EnquiryNo)}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:outline-none transition duration-300 transform hover:scale-105"
-                    >
-                      Perfoma Invoice
-                    </button>
+                   
 
                     {/* Sales Order Button */}
                     <button

@@ -219,67 +219,196 @@ const Salesorder = () => {
   const generatePDF = () => {
     try {
       console.log("Generating PDF with data:", formData);
-
+  
       const doc = new jsPDF();
-      const { customerName, quoteNumber, salesOrderDate, status } = formData.salesOrderDetails;
-
-      doc.setFontSize(14);
-      doc.text("ORDER CONFIRMATION", 14, 20);
-      doc.text("Loyalty Automation Pvt Ltd", 14, 30);
-      doc.text("We acknowledge the receipt of your captioned order and are pleased to confirm having registered the same.", 14, 40);
-
-      doc.setFontSize(12);
-      doc.text(`Customer: ${customerName || 'N/A'}`, 14, 50);
-      doc.text(`Quote Number: ${quoteNumber || 'N/A'}`, 14, 60);
-      doc.text(`Order Date: ${salesOrderDate || 'N/A'}`, 14, 70);
-      doc.text(`Status: ${status || 'N/A'}`, 14, 80);
-
-      // Check if there are items to display in the table
+      const {
+        customerName,
+        quoteNumber,
+        subject,
+        salesOrderDate,
+        status,
+        assignedTo,
+        poNumber,
+        poDate,
+        paymentTerms
+      } = formData.salesOrderDetails;
+  
+      // Color scheme
+      const primaryColor = "#4f46e5";
+      const secondaryColor = "#64748b";
+      const lightGray = "#f1f5f9";
+  
+      // Page margins
+      const marginX = 14;
+      const contentWidth = 182; // 210 - 2*14
+  
+      // --- Header ---
+      doc.setFillColor(primaryColor);
+      doc.rect(0, 0, 210, 30, 'F');
+  
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(20);
+      doc.setFont("helvetica", "bold");
+      doc.text("SALES ORDER", marginX, 20);
+  
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text("Loyalty Automation Pvt Ltd", 210 - marginX, 10, { align: "right" });
+      doc.text("No.27/1 Vaigai Colony", 210 - marginX, 14, { align: "right" });
+      doc.text("2nd Street, 12th Ave, Ashok Nagar", 210 - marginX, 18, { align: "right" });
+      doc.text("Chennai - 600083", 210 - marginX, 22, { align: "right" });
+      doc.text("loyaltyautomation@gmail.com", 210 - marginX, 26, { align: "right" });
+  
+      // --- Order Info Section ---
+      let y = 40;
+      doc.setFillColor(lightGray);
+      doc.roundedRect(marginX, y, contentWidth, 40, 2, 2, 'F');
+  
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.text("ORDER INFORMATION", marginX + 2, y + 8);
+  
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+  
+      y += 16;
+      doc.text(`Customer: ${customerName || 'N/A'}`, marginX + 2, y);
+      doc.text(`Quote #: ${quoteNumber || 'N/A'}`, marginX + 2, y + 6);
+      doc.text(`Subject: ${subject || 'N/A'}`, marginX + 2, y + 12);
+      doc.text(`Order Date: ${salesOrderDate || 'N/A'}`, marginX + 2, y + 18);
+  
+      doc.text(`Status: ${status || 'N/A'}`, 120, y);
+      doc.text(`PO Number: ${poNumber || 'N/A'}`, 120, y + 6);
+      doc.text(`PO Date: ${poDate || 'N/A'}`, 120, y + 12);
+      doc.text(`Payment Terms: ${paymentTerms || 'N/A'}`, 120, y + 18);
+  
+      // --- Items Table ---
       if (formData.items && formData.items.length > 0) {
-        const headers = [
-          ["Item Name", "Quantity", "List Price", "Discount", "Tax", "Total Price"]
-        ];
-
-        const items = formData.items.map((item) => [
+        const headers = [["Item", "Qty", "Unit Price", "Discount", "Tax", "Total"]];
+        const items = formData.items.map(item => [
           item.itemName || 'N/A',
           item.quantity || 0,
-          item.listPrice || 0,
-          item.discount || 0,
-          item.tax || 0,
-          item.totalPrice || 0,
+          `Rs. ${item.listPrice.toFixed(2)}`,
+          `Rs. ${item.discount.toFixed(2)}`,
+          `Rs. ${item.tax.toFixed(2)}`,
+          `Rs. ${item.totalPrice.toFixed(2)}`
         ]);
-
-        // Using autoTable explicitly now
+  
         autoTable(doc, {
-          startY: 90,
+          startY: y + 42,
           head: headers,
           body: items,
+          theme: 'grid',
+          headStyles: {
+            fillColor: primaryColor,
+            textColor: 255,
+            fontSize: 9,
+            fontStyle: 'bold'
+          },
+          bodyStyles: {
+            fontSize: 9,
+            textColor: 30
+          },
+          alternateRowStyles: {
+            fillColor: [245, 245, 245]
+          },
+          styles: {
+            cellPadding: 3
+          },
+          columnStyles: {
+            0: { cellWidth: 60 },
+            5: { halign: 'right' }
+          }
         });
+  
+        // --- Summary ---
+        const {
+          itemsTotal,
+          discountTotal,
+          shippingHandling,
+          preTaxTotal,
+          taxesForShipping,
+          grandTotal
+        } = formData.summary;
+  
+        const yPos = doc.lastAutoTable.finalY + 10;
+  
+        doc.setFillColor(lightGray);
+        doc.roundedRect(120, yPos, 76, 42, 2, 2, 'F');
+  
+        const labels = [
+          "Subtotal:",
+          "Discount:",
+          "Shipping & Handling:",
+          "Pre-tax Total:",
+          "Tax:"
+        ];
+  
+        const values = [
+          itemsTotal,
+          discountTotal,
+          shippingHandling,
+          preTaxTotal,
+          taxesForShipping
+        ];
+  
+        doc.setFontSize(9);
+        doc.setTextColor(secondaryColor);
+  
+        labels.forEach((label, idx) => {
+          doc.text(label, 124, yPos + 8 + idx * 8);
+          doc.text(`Rs. ${parseFloat(values[idx]).toFixed(2)}`, 192, yPos + 8 + idx * 8, { align: "right" });
+        });
+  
+        // Grand Total
+        doc.setDrawColor(primaryColor);
+        doc.line(124, yPos + 41, 196, yPos + 41);
+  
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(primaryColor);
+        doc.text("GRAND TOTAL:", 124, yPos + 49);
+        doc.text(`Rs. ${parseFloat(grandTotal).toFixed(2)}`, 192, yPos + 49, { align: "right" });
+  
+        // --- Terms ---
+        const termsY = yPos + 65;
+        doc.setFontSize(10);
+        doc.setTextColor(0, 0, 0);
+        doc.setFont("helvetica", "bold");
+        doc.text("Terms & Conditions", marginX, termsY);
+  
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(secondaryColor);
+        const termsText = formData.termsAndConditions.text || 
+          "Standard terms apply. Items are subject to availability. Payment due as per agreement.";
+        const splitTerms = doc.splitTextToSize(termsText, 180);
+        doc.text(splitTerms, marginX, termsY + 6);
       } else {
-        doc.text("No items available for the order.", 14, 90);
+        doc.text("No items available for the order.", marginX, 90);
       }
-
-      // Add summary if available
-      const { grandTotal } = formData.summary;
-      if (grandTotal) {
-        doc.setFontSize(12);
-        doc.text(`Grand Total: ${grandTotal || 'N/A'}`, 14, doc.lastAutoTable.finalY + 10);
+  
+      // --- Footer ---
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setDrawColor(primaryColor);
+        doc.line(marginX, 280, 210 - marginX, 280);
+        doc.setFontSize(8);
+        doc.setTextColor(secondaryColor);
+        doc.text("Thank you for your business", marginX, 287);
+        doc.text(`Page ${i} of ${pageCount}`, 210 - marginX, 287, { align: "right" });
       }
-
-      // Bank Details (Ensure the fields are available and set correctly)
-      doc.setFontSize(12);
-      doc.text("Bank Details", 14, doc.lastAutoTable.finalY + 20);
-      doc.text("Bank Name: XYZ Bank", 14, doc.lastAutoTable.finalY + 30);
-      doc.text("Account Number: 123456789", 14, doc.lastAutoTable.finalY + 40);
-
-      // Save the generated PDF
+  
       doc.save("sales_order.pdf");
-
+  
     } catch (error) {
-      console.error("Error in PDF generation:", error);
+      console.error("Error generating PDF:", error);
       alert("Failed to generate PDF.");
     }
   };
+  
 
   const handleBackClick = () => {
     router.push('/SaleteamDasboard/Dasboard');
@@ -311,7 +440,7 @@ const Salesorder = () => {
                 <label className="block text-sm font-medium text-gray-700">{field}</label>
                 <input
                   type={field === "salesOrderDate" || field === "poDate" ? "date" : "text"}
-                  name={`salesOrderDetails.${field}`}
+                  name={`salesOrderDetails.Rs.{field}`}
                   value={formData.salesOrderDetails[field] || ""}
                   onChange={handleChange}
                   className="mt-1 block w-full p-2 border rounded-md shadow-sm"
@@ -361,7 +490,7 @@ const Salesorder = () => {
                   <label className="block text-sm font-medium text-gray-700">{field}</label>
                   <input
                     type="number"
-                    name={`item[${index}].${field}`}
+                    name={`item[Rs.{index}].Rs.{field}`}
                     value={item[field]}
                     onChange={(e) => handleNestedChange(e, index, field)}
                     className="mt-1 block w-full p-2 border rounded-md"
@@ -388,7 +517,7 @@ const Salesorder = () => {
               <label className="block text-sm font-medium text-gray-700">{field}</label>
               <input
                 type="number"
-                name={`summary.${field}`}
+                name={`summary.Rs.{field}`}
                 value={formData.summary[field]}
                 onChange={handleChange}
                 className="mt-1 block w-full p-2 border rounded-md"

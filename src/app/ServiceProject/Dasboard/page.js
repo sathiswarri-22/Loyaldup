@@ -113,7 +113,7 @@ const Dashboard = () => {
 
                     <div className="min-h-screen bg-gradient-to-br from-green-100 to-green-300 p-8">
                         <div className="bg-white rounded-xl shadow-2xl p-6">
-                            <h1 className="text-4xl font-bold text-center text-green-600 mb-4">Sales Enquiry Data</h1>
+                            <h1 className="text-4xl font-bold text-center text-green-600 mb-4">Service Project Data</h1>
                             <div className="overflow-x-auto">
                                 <table className="min-w-full table-auto text-left bg-white shadow-lg rounded-lg">
                                     <thead>
@@ -159,35 +159,34 @@ const Dashboard = () => {
                                                     <td className="px-4 py-2">{data?.AddressDetails?.PostalCode || "N/A"}</td>
                                                     <td className="px-4 py-2">{data?.AddressDetails?.State || "N/A"}</td>
                                                     <td className="px-4 py-2">{data?.Remarks || "N/A"}</td>
-                                                    <td className="px-4 py-2">{data?.Action}</td>
                                                     
                                                    
                                                     <td className="px-4 py-2">
                                                         {(role === "Service Engineer" || role === "Engineer") && (
-                                                            <>
-                                                             <button 
-    onClick={() => workvisit(data?.LeadDetails?.clientName, data?.LeadDetails?.companyName, data?.AddressDetails)} 
-    className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition duration-300"
->
-    Workvisits
-</button>
-
+                                                            <div className="flex flex-col space-y-2">
+                                                                <button 
+                                                                    onClick={() => workvisit(data?.LeadDetails?.clientName, data?.LeadDetails?.companyName, data?.AddressDetails)} 
+                                                                    className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition duration-300 shadow-md flex items-center justify-center"
+                                                                >
+                                                                    Workvisits
+                                                                </button>
 
                                                                 <button
                                                                     onClick={() => productrequest(data?.LeadDetails?.companyName)}
-                                                                    className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition duration-300"
+                                                                    className="px-4 py-2 text-white bg-purple-600 rounded-md hover:bg-purple-700 transition duration-300 shadow-md flex items-center justify-center"
                                                                 >
-                                                                    Product request
+                                                                    Product Request
                                                                 </button>
-                                                                {role=='Service Engineer'&&
-                                                                <button
-                                                                onClick={() => servicedetails(data?.LeadDetails?.clientName)}
-                                                                    className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition duration-300"
-                                                                >
-                                                                    Service details
-                                                                </button>
-                                                               }
-                                                            </>
+                                                                
+                                                                {role === 'Service Engineer' && (
+                                                                    <button
+                                                                        onClick={() => servicedetails(data?.LeadDetails?.clientName)}
+                                                                        className="px-4 py-2 text-white bg-teal-600 rounded-md hover:bg-teal-700 transition duration-300 shadow-md flex items-center justify-center"
+                                                                    >
+                                                                        Service Details
+                                                                    </button>
+                                                                )}
+                                                            </div>
                                                         )}
                                                     </td>
                                                 </tr>
@@ -204,4 +203,4 @@ const Dashboard = () => {
     );
 };
 
-export default Dashboard;
+export default Dashboard;         

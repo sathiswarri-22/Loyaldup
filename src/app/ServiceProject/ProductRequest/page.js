@@ -22,7 +22,7 @@ const Productrequest = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = localStorage.getItem("admintokens");
-  const companyName = searchParams.get('companyName'); 
+  const companyNameFromParams = searchParams.get('companyName'); 
   const Eid = localStorage.getItem('idstore');
 
   useEffect(() => {
@@ -43,7 +43,7 @@ const Productrequest = () => {
           ...prevState,
           name,
           email,
-          companyName: companyName || prevState.companyName,
+          companyName: prevState.companyName || (companyNameFromParams || ''),
           Employeeid: Eid || prevState.Employeeid
         }));
 
@@ -61,7 +61,7 @@ const Productrequest = () => {
     };
 
     fetchData();
-  }, [token, Eid]);
+  }, []); // Only run on first mount
 
   const handleChange = (e, index, field) => {
     const { name, value } = e.target;

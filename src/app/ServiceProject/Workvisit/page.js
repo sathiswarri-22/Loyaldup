@@ -16,7 +16,7 @@ const Workvisit = () => {
     MachineName: "",
     ProductDescription: "",
     Problems: [{ description: "" }],
-    Assessment: "",
+    financialYear: "",
   });
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -103,17 +103,39 @@ const Workvisit = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { name, Eid, companyName, clientName, Location, Problems } = workvisit;
+    const {
+      name,
+      Eid,
+      companyName,
+      clientName,
+      Date,
+      Location,
+      MachineName,
+      ProductDescription,
+      Problems,
+      financialYear,
+    } = workvisit;
 
+    // Validate required fields
     if (
       !Eid ||
       !name ||
       !companyName ||
       !clientName ||
       !Location ||
-      Problems.some((p) => !p.description)
+      !Date ||
+      !MachineName ||
+      !ProductDescription ||
+      Problems.some((p) => !p.description) ||
+      !financialYear
     ) {
-      setErrorMessage("Please fill in all required fields, including all problems.");
+      setErrorMessage("Please fill in all required fields.");
+      return;
+    }
+
+    // Validate financialYear format "24-25"
+    if (!/^\d{2}-\d{2}$/.test(financialYear)) {
+      setErrorMessage("Financial Year must be in format '24-25'");
       return;
     }
 
@@ -124,8 +146,13 @@ const Workvisit = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5005/api/service-project",
-        workvisit,
+        "http://localhost:5005/api/service&project",
+        {
+          ...workvisit,
+          Problems: Problems.map((problem) => ({
+            description: problem.description,
+          })),
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -133,15 +160,22 @@ const Workvisit = () => {
           },
         }
       );
-      console.log("Success:", response.data);
+
       alert("Successfully submitted");
 
-      
+      setWorkvisit((prevState) => ({
+        ...prevState,
+        ReportNo: response.data.user.ReportNo,
+      }));
+      setIsSubmitted(true);
+      response.data.user.ReportNo // instead of response.data.reportNumber
+      console.log("Response data:", response.data);
+      console.log("workvisit", workvisit);
+      console.log("Response data:", response.data.user.ReportNo);
+      console.log("Response data:", response.data);
     } catch (err) {
       console.error("Submission Error:", err.response || err);
-      alert(
-        err.response?.data?.message || "Something went wrong, please try again later."
-      );
+      alert(err.response?.data?.message || "Something went wrong, please try again later.");
     }
   };
 
@@ -150,7 +184,13 @@ const Workvisit = () => {
   };
 
   if (isSubmitted) {
-    return <InvoicePage workvisit={workvisit} setWorkvisit={setWorkvisit} setIsSubmitted={setIsSubmitted} />;
+    return (
+      <InvoicePage
+        workvisit={workvisit}
+        setWorkvisit={setWorkvisit}
+        setIsSubmitted={setIsSubmitted}
+      />
+    );
   }
 
   return (
@@ -167,6 +207,17 @@ const Workvisit = () => {
         </button>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="flex flex-col">
+              <label className="font-medium text-gray-600">Financial Year:</label>
+              <input
+                name="financialYear"
+                value={workvisit.financialYear}
+                onChange={handleChange}
+                required
+                className="px-4 py-3 mt-2 border rounded-lg"
+                placeholder="e.g. 24-25"
+              />
+            </div>
             <div className="flex flex-col">
               <label className="font-medium text-gray-600">Your Name:</label>
               <input
@@ -249,7 +300,7 @@ const Workvisit = () => {
               />
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col col-span-2">
               <label className="font-medium text-gray-600">Problems:</label>
               {workvisit.Problems.map((problem, index) => (
                 <div key={index} className="flex items-center space-x-2 mt-2">
@@ -278,17 +329,6 @@ const Workvisit = () => {
                 Add Problem
               </button>
             </div>
-
-            <div className="flex flex-col">
-              <label className="font-medium text-gray-600">Assessment:</label>
-              <textarea
-                name="Assessment"
-                value={workvisit.Assessment}
-                onChange={handleChange}
-                required
-                className="px-4 py-3 mt-2 border rounded-lg"
-              />
-            </div>
           </div>
 
           {errorMessage && (
@@ -302,7 +342,8 @@ const Workvisit = () => {
             Submit
           </button>
           <button
-            onClick={()=>setIsSubmitted(true)}
+            type="button"
+            onClick={() => setIsSubmitted(true)}
             className="w-full py-3 bg-teal-600 text-white rounded-lg shadow hover:bg-teal-700 transition duration-300"
           >
             PDF Generate

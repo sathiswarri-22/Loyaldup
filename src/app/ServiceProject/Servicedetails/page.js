@@ -19,6 +19,8 @@ const Servicedetails = () => {
         Employeeid: '',
         serviceenddate: '',
         Eid: '', 
+        customerComplaint: '',  
+        engineerProblem: '',  
     });
 
     const [EidToAssign, setEidToAssign] = useState('');
@@ -52,7 +54,6 @@ const Servicedetails = () => {
         if (clientName) {
             setService((prevState) => ({
                 ...prevState,
-                clientName: clientName,
             }));
         }
         if (storedEmployeeid) {
@@ -116,6 +117,8 @@ const Servicedetails = () => {
                 Employeeid: '',
                 serviceenddate: '',
                 Eid: '', 
+                customerComplaint: '',  
+                engineerProblem: '',  
             });
             setEidToAssign('');
         } catch (err) {
@@ -167,14 +170,13 @@ const Servicedetails = () => {
 
            
             <div>
-                <label className="block text-sm font-semibold text-gray-700">Client Name</label>
+                <label className="block text-sm font-semibold text-gray-700">Company Name</label>
                 <input
                     type="text"
                     name="clientName"
-                    placeholder="Client Name"
+                    placeholder="Company Name"
                     value={service.clientName}
                     onChange={handleChange}
-                    disabled
                     className="mt-1 p-2 border border-gray-300 rounded-md w-full bg-gray-100"
                 />
             </div>
@@ -194,7 +196,7 @@ const Servicedetails = () => {
 
            
             <div>
-                <label className="block text-sm font-semibold text-gray-700">Service Start Date</label>
+                <label className="block text-sm font-semibold text-gray-700">Date</label>
                 <input
                     type="date"
                     name="servicestartdate"
@@ -281,16 +283,17 @@ const Servicedetails = () => {
 
             
             <div>
-                <label className="block text-sm font-semibold text-gray-700">Power Consumption</label>
-                <input
-                    type="text"
-                    name="powerconsumption"
-                    placeholder="Power Consumption"
-                    value={service.powerconsumption}
-                    onChange={handleChange}
-                    className="mt-1 p-2 border border-gray-300 rounded-md w-full"
-                />
-            </div>
+    <label className="block text-sm font-semibold text-gray-700">HP/KW</label>
+    <input
+        type="text"
+        name="powerconsumption"
+        placeholder="HP/KW"
+        value={service.powerconsumption}
+        onChange={handleChange}
+        className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+    />
+</div>
+
 
             
             <div>
@@ -329,6 +332,29 @@ const Servicedetails = () => {
                     className="mt-1 p-2 border border-gray-300 rounded-md w-full"
                 />
             </div>
+
+            <div>
+    <label className="block text-sm font-semibold text-gray-700">Customer Complaint</label>
+    <textarea
+        name="customerComplaint"
+        placeholder="Describe the customer complaint"
+        value={service.customerComplaint}
+        onChange={handleChange}
+        className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+    />
+</div>
+
+<div>
+    <label className="block text-sm font-semibold text-gray-700">Engineer Problem</label>
+    <textarea
+        name="engineerProblem"
+        placeholder="Describe the engineer's problem"
+        value={service.engineerProblem}
+        onChange={handleChange}
+        className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+    />
+</div>
+
 
            
             <div className="mt-6">

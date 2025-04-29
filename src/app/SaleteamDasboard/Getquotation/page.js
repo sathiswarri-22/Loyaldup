@@ -1,102 +1,133 @@
-"use client"
+"use client";
 import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
 
 const Getquotation = () => {
   const searchparams = useSearchParams();
-  const mode = searchparams.get("mode") || "view"; // Default to "view" if mode is not provided
+  const mode = searchparams.get("mode") || "view";
   const EnquiryNo = searchparams.get("EnquiryNo");
   const Eid = localStorage.getItem("idstore");
   const token = localStorage.getItem("admintokens");
 
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({ products: [] });
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
-  const router = useRouter(); // Initialize the router for navigation
+  const [revisionNumber, setRevisionNumber] = useState("");
+  const router = useRouter();
   const formRef = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Set initial states for formData in case of failures
-        let dataFromAPI1 = null;
-        let dataFromAPI2 = null;
-
-        // Fetch data from the first API (quotationGetOne)
-        try {
-          const response1 = await axios.get(
-            `http://localhost:5005/api/quotationGetOne/${EnquiryNo}/${Eid}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-
-          if (response1.data && response1.data.data) {
-            console.log("Data from quotationGetOne API:", response1.data.data);
-            dataFromAPI1 = response1.data.data; // Save the successful response from the first API
-          } else {
-            console.log("No data from quotationGetOne.");
-          }
-        } catch (error) {
-          console.log("Error fetching data from quotationGetOne API:", error.message);
-        }
-
-        // Fetch data from the second API (quotationEditOne) only if the first one failed or didn't return data
+        let dataFromAPI2 = null;  // First, assume no data from the Edit API
+        let dataFromAPI1 = null;  // For fallback to the Get API if necessary
+  
+        // Try fetching data from the quotationEditOne API first
         try {
           const response2 = await axios.get(
             `http://localhost:5005/api/quotationEditOne/${EnquiryNo}/${Eid}`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
-
-          if (response2.data && response2.data.data) {
-            console.log("Data from quotationEditOne API:", response2.data.data);
-            dataFromAPI2 = response2.data.data; // Save the successful response from the second API
-          } else {
-            console.log("No data from quotationEditOne.");
+          if (response2.data?.data) {
+            dataFromAPI2 = response2.data.data;  // If data exists, use this
           }
         } catch (error) {
-          console.log("Error fetching data from quotationEditOne API:", error.message);
+          console.log("Error fetching from quotationEditOne:", error.message);
         }
-
-        // Combine or choose the data from both APIs
-        if (dataFromAPI1) {
-          setFormData(dataFromAPI1);
-        } else if (dataFromAPI2) {
-          setFormData(dataFromAPI2);
+  
+        // If no data from the Edit API, fallback to fetching from the quotationGetOne API
+        if (!dataFromAPI2) {
+          try {
+            const response1 = await axios.get(
+              `http://localhost:5005/api/quotationGetOne/${EnquiryNo}/${Eid}`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+            if (response1.data?.data) {
+              dataFromAPI1 = response1.data.data;  // Use data from the Get API if available
+            }
+          } catch (error) {
+            console.log("Error fetching from quotationGetOne:", error.message);
+          }
+        }
+  
+        // Combine data or fallback if none is found
+        const loadedData = dataFromAPI2 || dataFromAPI1;
+        if (loadedData) {
+          setFormData({
+            ...loadedData,
+            products: loadedData.products || [],
+          });
         } else {
           setError("No data available from both APIs.");
         }
       } catch (error) {
-        console.error("Error in fetching data:", error.message);
+        console.error("Fetching error:", error.message);
         setError("Failed to fetch data.");
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, [EnquiryNo, Eid, token]);
+  
+
+  
+
   const handleChange = (e, index, field) => {
-    const updatedProducts = [...formData.products]; // Clone the products array
-    updatedProducts[index] = { // Update the specific product at index
+    const updatedProducts = [...formData.products];
+    const value = e.target.value;
+
+    updatedProducts[index] = {
       ...updatedProducts[index],
-      [field]: e.target.value, // Update the field based on user input
+      [field]: value,
     };
+
+    // Auto-calculate Total
+    const quantity = parseFloat(
+      field === "Quantity" ? value : updatedProducts[index].Quantity
+    );
+    const unitPrice = parseFloat(
+      field === "UnitPrice" ? value : updatedProducts[index].UnitPrice
+    );
+    if (!isNaN(quantity) && !isNaN(unitPrice)) {
+      updatedProducts[index].Total = (quantity * unitPrice).toFixed(2);
+    }
+
     setFormData((prevData) => ({
       ...prevData,
-      products: updatedProducts, // Update the products array in state
+      products: updatedProducts,
+    }));
+  };
+
+  const handleAddProduct = () => {
+    const newProduct = {
+      HSNCode: "",
+      UnitDescription: "",
+      Description: "",
+      Quantity: "",
+      UnitPrice: "",
+      UOM: "",
+      Total: "",
+    };
+
+    setFormData((prevData) => ({
+      ...prevData,
+      products: [...(prevData.products || []), newProduct],
     }));
   };
 
   const handleEditToggle = () => {
-    setIsEditing((prev) => !prev); // Toggle edit mode for the entire form
-    setErrorMessage(""); // Clear any previous error messages
+    setIsEditing((prev) => !prev);
+    setErrorMessage("");
   };
 
   const handleSave = async () => {
-    const { EnquiryNo, ...updateFields } = formData; // Prepare fields for update
+    const { EnquiryNo, ...updateFields } = formData;
 
     if (!EnquiryNo || !formData.PayableAmount || !formData.Status) {
       setErrorMessage("Error: Please fill in all the required fields.");
@@ -104,21 +135,25 @@ const Getquotation = () => {
     }
 
     setLoading(true);
-    setErrorMessage(""); // Clear any previous error message
+    setErrorMessage("");
 
     try {
-      console.log("Data to save:", { EnquiryNo, ...updateFields });
+      const dataToSave = {
+        EnquiryNo,
+        ...updateFields,
+      };
 
-      // Send data to the backend API for saving
+      if (revisionNumber.trim()) {
+        dataToSave.revisedVersion = revisionNumber.trim();
+      }
+
       const response = await axios.put(
-        "http://localhost:5005/api/editQuotation", // Correct API route for saving
-        { EnquiryNo, ...updateFields }, // Pass EnquiryNo along with the update fields
+        "http://localhost:5005/api/editQuotation",
+        dataToSave,
         {
-          headers: { Authorization: `Bearer ${token}` }, // Attach token to the request
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-
-      console.log("Update Response:", response.data); // Log the response to check if the update was successful
 
       if (response.status === 200) {
         router.push("/SaleteamDasboard/Dasboard");
@@ -126,7 +161,7 @@ const Getquotation = () => {
         setErrorMessage("Failed to update the quotation.");
       }
     } catch (error) {
-      console.error("Error updating the quotation:", error.response ? error.response.data : error.message);
+      console.error("Update error:", error.message);
       setErrorMessage("Failed to update the quotation.");
     } finally {
       setLoading(false);
@@ -140,7 +175,7 @@ const Getquotation = () => {
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold text-center mb-6">Quotation Details</h1>
       <form ref={formRef} className="space-y-4">
-        {/* Table to display products */}
+        {/* Products Table */}
         <div className="overflow-x-auto">
           <table className="table-auto w-full border-collapse">
             <thead>
@@ -150,104 +185,80 @@ const Getquotation = () => {
                 <th className="px-4 py-2 border">Description</th>
                 <th className="px-4 py-2 border">Quantity</th>
                 <th className="px-4 py-2 border">Unit Price</th>
+                <th className="px-4 py-2 border">UOM</th>
                 <th className="px-4 py-2 border">Total</th>
               </tr>
             </thead>
             <tbody>
-              {formData.products && formData.products.map((product, index) => (
+              {formData.products.map((product, index) => (
                 <tr key={index}>
-                  <td className="px-4 py-2 border">
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        value={product.HSNCode}
-                        onChange={(e) => handleChange(e, index, "HSNCode")}
-                        className="w-full px-2 py-1 border rounded"
-                      />
-                    ) : (
-                      product.HSNCode
-                    )}
-                  </td>
-                  <td className="px-4 py-2 border">
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        value={product.UnitDescription}
-                        onChange={(e) => handleChange(e, index, "UnitDescription")}
-                        className="w-full px-2 py-1 border rounded"
-                      />
-                    ) : (
-                      product.UnitDescription
-                    )}
-                  </td>
-                  <td className="px-4 py-2 border">
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        value={product.Description}
-                        onChange={(e) => handleChange(e, index, "Description")}
-                        className="w-full px-2 py-1 border rounded"
-                      />
-                    ) : (
-                      product.Description
-                    )}
-                  </td>
-                  <td className="px-4 py-2 border">
-                    {isEditing ? (
-                      <input
-                        type="number"
-                        value={product.Quantity}
-                        onChange={(e) => handleChange(e, index, "Quantity")}
-                        className="w-full px-2 py-1 border rounded"
-                      />
-                    ) : (
-                      product.Quantity
-                    )}
-                  </td>
-                  <td className="px-4 py-2 border">
-                    {isEditing ? (
-                      <input
-                        type="number"
-                        value={product.UnitPrice}
-                        onChange={(e) => handleChange(e, index, "UnitPrice")}
-                        className="w-full px-2 py-1 border rounded"
-                      />
-                    ) : (
-                      product.UnitPrice
-                    )}
-                  </td>
-                  <td className="px-4 py-2 border">
-                    {isEditing ? (
-                      <input
-                        type="number"
-                        value={product.Total}
-                        onChange={(e) => handleChange(e, index, "Total")}
-                        className="w-full px-2 py-1 border rounded"
-                      />
-                    ) : (
-                      product.Total
-                    )}
-                  </td>
+                  {["HSNCode", "UnitDescription", "Description", "Quantity", "UnitPrice", "UOM", "Total"].map(
+                    (field) => (
+                      <td key={field} className="px-4 py-2 border">
+                        {isEditing && field !== "Total" ? (
+                          <input
+                            type={["Quantity", "UnitPrice"].includes(field) ? "number" : "text"}
+                            value={product[field] || ""}
+                            onChange={(e) => handleChange(e, index, field)}
+                            className="w-full px-2 py-1 border rounded"
+                          />
+                        ) : (
+                          product[field]
+                        )}
+                      </td>
+                    )
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        {/* Other input fields */}
-        {["Paymentdue", "validity", "Warranty", "Delivery", "Discount", "PayableAmount", "Gst"].map((field) => (
-          <div key={field}>
-            <label className="text-gray-700">{field}</label>
+        {/* Add Product */}
+        {isEditing && (
+          <button
+            type="button"
+            onClick={handleAddProduct}
+            className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          >
+            + Add Product
+          </button>
+        )}
+
+        {/* Other fields */}
+        {["Paymentdue", "validity", "Warranty", "Delivery", "Discount", "PayableAmount", "Gst", "Status"].map(
+          (field) => (
+            <div key={field}>
+              <label className="text-gray-700">{field}</label>
+              <input
+                name={field}
+                value={formData[field] || ""}
+                onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
+                className="w-full px-4 py-2 border rounded-lg"
+                disabled={!isEditing}
+              />
+            </div>
+          )
+        )}
+
+        {/* Revision Number */}
+        {isEditing && (
+          <div>
+            <label className="text-gray-700">Revision Number (e.g. R1, R2)</label>
             <input
-              name={field}
-              value={formData[field] || ""}
-              onChange={(e) => setFormData({ ...formData, [field]: e.target.value })}
+              name="revisionNumber"
+              value={revisionNumber}
+              onChange={(e) => setRevisionNumber(e.target.value)}
+              placeholder="Enter revision (e.g., R1)"
               className="w-full px-4 py-2 border rounded-lg"
             />
+            <p className="text-sm text-gray-500 mt-1">
+              Current Reference: {formData.ReferenceNumber || "None"}
+            </p>
           </div>
-        ))}
+        )}
 
-        {/* Edit and Save buttons */}
+        {/* Buttons */}
         {mode !== "pdf" && (
           <div className="flex space-x-2">
             <button
@@ -257,7 +268,6 @@ const Getquotation = () => {
             >
               {isEditing ? "Cancel Edit" : "Edit"}
             </button>
-
             {isEditing && (
               <button
                 type="button"
@@ -270,7 +280,7 @@ const Getquotation = () => {
           </div>
         )}
 
-        {/* Error message */}
+        {/* Error Message */}
         {errorMessage && <p className="text-red-500">{errorMessage}</p>}
       </form>
     </div>
