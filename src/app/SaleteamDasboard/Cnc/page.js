@@ -41,6 +41,33 @@ const Customernotconverted = () => {
     router.push("/SaleteamDasboard/Dasboard"); // Navigate back to the dashboard
   };
 
+  const handleDelete = async (EnquiryNo) => {
+    const token = localStorage.getItem("admintokens");
+  
+    if (!token) {
+      alert("Authorization token is missing.");
+      return;
+    }
+  
+    const confirmed = window.confirm("Are you sure you want to delete this customer?");
+    if (!confirmed) return;
+  
+    try {
+      await axios.delete(`http://localhost:5005/api/cc/customernotconverted/${EnquiryNo}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      // Remove the deleted customer from state
+      setCustomers(customers.filter(c => c.EnquiryNo !== EnquiryNo));
+      alert("Customer deleted successfully.");
+    } catch (error) {
+      console.error("Error deleting customer:", error);
+      alert("Failed to delete customer. Please try again.");
+    }
+  };
+  
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-green-100 to-green-300">
       <div className="w-full max-w-4xl p-8 space-y-6 bg-white rounded-xl shadow-2xl">
@@ -86,6 +113,15 @@ const Customernotconverted = () => {
                   <td className="px-4 py-2 text-sm text-gray-700">
                     {customer.remarks}
                   </td>
+                  <td className="px-4 py-2 text-sm text-gray-700">
+  <button
+    onClick={() => handleDelete(customer.EnquiryNo)}
+    className="px-3 py-1"
+  >
+    <img src='/delete.png' className="w-10 h-6"></img>
+  </button>
+</td>
+
                 </tr>
               ))}
             </tbody>

@@ -567,10 +567,10 @@
                                                                 <td className="px-4 py-2">{data?.AddressDetails?.City || "N/A"}</td>
                                                                 <td className="px-4 py-2">{data?.AddressDetails?.PostalCode || "N/A"}</td>
                                                                 <td className="px-4 py-2">{data?.AddressDetails?.State || "N/A"}</td>
-                                                                <td className="px-4 py-2">{data?.Remarks || "N/A"}</td>
+                                                                <td className="px-4 py-2">{data?.DescriptionDetails || "N/A"}</td>
                                                                 <td className="px-4 py-2">
-                                                                {data?.createdAt ? new Date(data?.createdAt).toLocaleString() : "N/A"}
-                                                                </td>  
+  {data?.createdAt ? new Date(data.createdAt).toLocaleDateString() : "N/A"}
+</td> 
                                                                
                                                                 {selectedEnquiries[0] === data.EnquiryNo?<td>
                                                                     <div className="flex flex-col space-y-5 md:flex-row md:items-end md:space-y-0 md:space-x-5">
@@ -659,10 +659,11 @@
                                                                 <td className="px-4 py-2">{data?.AddressDetails?.City || "N/A"}</td>
                                                                 <td className="px-4 py-2">{data?.AddressDetails?.PostalCode || "N/A"}</td>
                                                                 <td className="px-4 py-2">{data?.AddressDetails?.State || "N/A"}</td>
+                                                                <td className="px-4 py-2">{data?.DescriptionDetails || "N/A"}</td>
                                                                 <td className="px-4 py-2">
-                                                                {data?.createdAt ? new Date(data?.createdAt).toLocaleString() : "N/A"}
-                                                                </td>    
-                                                    <td className="px-4 py-2">{data?.Remarks || "N/A"}</td>
+  {data?.createdAt ? new Date(data.createdAt).toLocaleDateString() : "N/A"}
+</td>
+
 
                                                     
  
