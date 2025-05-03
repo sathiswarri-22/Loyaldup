@@ -52,7 +52,10 @@ const CompletedEnquiries = () => {
   router.push('/SaleteamDasboard/SalesOrder')
  }
 
- 
+ const handleEditcustomerClick = (EnquiryNo) => {
+  router.push(`/SaleteamDasboard/Editcustomer?EnquiryNo=${EnquiryNo}`);
+};
+
  
 
  const handleBackClick = () => {
@@ -113,6 +116,13 @@ const CompletedEnquiries = () => {
                     >
                       Sales Order
                     </button>
+                    <button
+  onClick={() => handleEditcustomerClick(conversation.EnquiryNo)}
+  className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 focus:outline-none transition duration-300 transform hover:scale-105"
+>
+  Edit
+</button>
+
                    
                   </td>
                 </tr>
