@@ -31,6 +31,8 @@ const PurchaseOrder = () => {
     financialYear: "",
     Address: "",
     SupplierName: "",
+    LP:"",
+    discount:"",
     RefQNo: "",
     QDate: "",
     GSTIN: "",
@@ -309,7 +311,7 @@ const PurchaseOrder = () => {
             </div>
           ))}
         </div>
-
+    
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-6">
             <div>
@@ -333,6 +335,30 @@ const PurchaseOrder = () => {
                 placeholder="Enter GST percentage"
               />
             </div>
+            <div>
+  <label className="block text-sm font-medium text-gray-700">LP</label>
+  <input
+    type="text"
+    name="LP"
+    value={formData.LP}
+    onChange={handleInputChange}
+    className="w-full p-3 border border-gray-300 rounded-lg"
+    placeholder="Enter LP"
+  />
+</div>
+
+<div>
+  <label className="block text-sm font-medium text-gray-700">Discount (%)</label>
+  <input
+    type="number"
+    name="discount"
+    value={formData.discount}
+    onChange={handleInputChange}
+    className="w-full p-3 border border-gray-300 rounded-lg"
+    placeholder="Enter Discount Percentage"
+  />
+</div>
+
           </div>
 
           <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 space-y-4">
@@ -382,6 +408,7 @@ const PurchaseOrder = () => {
               className="w-full p-3 border border-black rounded-md"
             />
           </div>
+          
           <div>
             <label>RefQNo</label>
             <input

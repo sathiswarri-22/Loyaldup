@@ -226,6 +226,8 @@ export default function EditPOPage() {
           { label: "Delivery Terms", name: "deliveryTerms" },
           { label: "Warranty Terms", name: "warrantyTerms" },
           { label: "Payment Terms", name: "paymentTerms" },
+          { label: "LP", name: "LP" },
+          { label: "discount", name: "discount" },
         ].map(({ label, name }) => (
           <div key={name} className="flex flex-col">
             <label className="text-lg font-medium text-gray-700 mb-2">{label}:</label>

@@ -42,7 +42,7 @@ const Quotations = () => {
     };
   
     const handleBackClick = () => {
-      router.push("/admin/adminDasboard");
+      router.push("/SaleteamDasboard/Dasboard");
     };
   
     if (loading) return <div className="text-center text-xl text-gray-600">Loading...</div>;
