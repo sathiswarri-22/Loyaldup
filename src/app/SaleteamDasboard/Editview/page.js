@@ -106,6 +106,22 @@ export default function EditPOPage() {
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-gradient-to-r from-indigo-50 via-indigo-100 to-indigo-200 shadow-lg rounded-xl">
+      <button
+          onClick={() => router.push("/SaleteamDasboard/GetPO")}
+          className="inline-flex items-center px-4 py-2 mb-6 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
     <h2 className="text-3xl font-semibold text-center text-indigo-800 mb-6">
       Purchase Order Details: {poNumber}
     </h2>

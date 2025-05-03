@@ -20,6 +20,9 @@ const Home = () => {
   const [formData, setFormData] = useState({
     products: [{ HSNCode: '', UnitDescription: '', Description: '', UOM: '', Quantity: '', UnitPrice: '', Total: '' }],
     Eid: Eid,
+    LP:'',
+    UpdatedEid: Eid,
+    discount:'',
     EnquiryNo: EnquiryNo,
     Paymentdue: '',
     validity: '',
@@ -192,6 +195,7 @@ const Home = () => {
       setFormData({
         products: [{ HSNCode: '', UnitDescription: '', Description: '', UOM: '', Quantity: '', UnitPrice: '', Total: '' }],
         Eid: Eid,
+        UpdatedEid: Eid,
         EnquiryNo: EnquiryNo,
         Paymentdue: '',
         validity: '',
@@ -203,6 +207,8 @@ const Home = () => {
         financialYear: '',
         isRevision: false,
         referenceToRevise: '',
+        LP:'',
+        discount:'',
         Status: 'quotsreq'
       });
       setCustomFields({
@@ -233,10 +239,20 @@ const Home = () => {
       <div className="flex items-center justify-between mb-10 border-b pb-4">
         <button
           onClick={() => router.push('/SaleteamDasboard/Dasboard')}
-          className="p-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
-        >
-          <ChevronLeft size={20} />
-        </button>
+          className="inline-flex items-center px-4 py-2 mb-6 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5 mr-2"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+  </svg>
+  Back
+</button>
         <h1 className="text-3xl font-bold text-gray-800">Create Quotation</h1>
         <div className="w-10" />
       </div>
@@ -573,7 +589,30 @@ const Home = () => {
                   ₹{(Number(formData.PayableAmount) - (Number(formData.PayableAmount) / (1 + Number(formData.Gst) / 100))).toFixed(2)}
                 </span>
               </div>
-              
+              <div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">LP</label>
+  <input
+    type="text"
+    name="LP"
+    value={formData.LP}
+    onChange={(e) => setFormData((prev) => ({ ...prev, LP: e.target.value }))}
+    placeholder="Enter LP value"
+    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
+</div>
+
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-2">Discount</label>
+  <input
+    type="text"
+    name="discount"
+    value={formData.discount}
+    onChange={(e) => setFormData((prev) => ({ ...prev, discount: e.target.value }))}
+    placeholder="Enter discount"
+    className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
+</div>
+
               <div className="flex flex-col items-end">
                 <span className="text-sm text-gray-500 mb-1">Total Payable Amount</span>
                 <div className="bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md">
@@ -595,7 +634,7 @@ const Home = () => {
             {loading ? 'Submitting...' : 'Submit Quotation'}
           </button>
         </div>
-
+        
         {/* Reference Number */}
         {referenceNumber && (
           <div className="mt-6 p-5 bg-green-50 border border-green-100 text-green-800 rounded-lg shadow-md">

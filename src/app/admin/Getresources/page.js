@@ -157,10 +157,20 @@ const Getresources = () => {
             <div className="flex items-center space-x-3">
               <button
                 onClick={() => router.push('/admin/adminDasboard')}
-                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <ChevronLeft size={20} />
-              </button>
+                className="inline-flex items-center px-4 py-2 mb-6 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5 mr-2"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+  </svg>
+  Back
+</button>
               <h1 className="text-xl font-semibold text-gray-800">Company Resources Management</h1>
             </div>
             <button

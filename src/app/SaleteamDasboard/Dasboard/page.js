@@ -46,6 +46,8 @@
 
         const checkConversionStatus = async (enquiryList) => {
             try {
+                if (!enquiryList || enquiryList.length === 0) return;
+    
                 const enquiryParam = enquiryList.join(',');
                 const response = await axios.get(
                     `http://localhost:5005/api/cc/getMultipleEnquiryStatuses?enquiryNos=${enquiryParam}`,
@@ -56,26 +58,23 @@
                         },
                     }
                 );
-        
+    
                 const statusMap = response.data;
-        
+    
                 setConversionStatus(prevState => {
                     const updatedStatus = { ...prevState };
-        
                     enquiryList.forEach(enqNo => {
                         const shouldHide = statusMap[enqNo]?.shouldHideButtons ?? false;
-                        updatedStatus[enqNo] = shouldHide; // ✅ true = hide, false = show
+                        updatedStatus[enqNo] = shouldHide;
                     });
-        
                     console.log("Updated conversion statuses:", updatedStatus);
                     return updatedStatus;
                 });
-        
+    
             } catch (err) {
                 console.error("Error fetching conversion statuses:", err);
             }
         };
-        
 
         // Check conversion status for each enquiry when data is fetched
         useEffect(() => {
@@ -128,7 +127,7 @@
     const fetchData = async () => {
         try {
             console.log("Fetching data for role:", role);
-           
+    
             const response =
                 role === "sales head"
                     ? await axios.get('http://localhost:5005/api/headenquiry', {
@@ -146,38 +145,41 @@
                             },
                         }
                     );
-            console.log("API Response:", response);
+    
             if (role === "sales head") {
-                console.log("Sales Head Enquiries Data: ", response.data);
+                console.log("Sales Head Enquiries Data:", response.data);
                 setEnquiryData(response.data || []);
             } else {
                 const data = response.data.getdatas || [];
-            console.log("Sales Team Enquiries Data: ", data);
-            setSaleEnquiryData(data);
-            SetAllenquiry(data.map(item => item.EnquiryNo));
-            
-            
-            const firstEnquiryNo = data[0]?.EnquiryNo;
-            console.log("i fetch the allEnquiryNo", firstEnquiryNo);
-            
-            setEnquiry(firstEnquiryNo);
-            data.forEach(enq => fetchQuotationIcon(enq.EnquiryNo));
-            console.log("i can get the EnquiryNo", firstEnquiryNo);
+                console.log("Sales Team Enquiries Data:", data);
+    
+                setSaleEnquiryData(data);
+                const allEnquiryNos = data.map(item => item.EnquiryNo);
+                SetAllenquiry(allEnquiryNos);
+    
+                const firstEnquiryNo = allEnquiryNos[0];
+                setEnquiry(firstEnquiryNo);
+                console.log("First EnquiryNo:", firstEnquiryNo);
+    
+                // Fetch icon for each enquiry
+                data.forEach(enq => fetchQuotationIcon(enq.EnquiryNo));
+    
+                // ✅ Check conversion status for all enquiries
+                checkConversionStatus(allEnquiryNos);
             }
     
         } catch (err) {
-            
-            console.error("Error fetching data: ", err);
+            console.error("Error fetching data:", err);
             if (err.response) {
-                console.error("Server Error: ", err.response.data);
+                console.error("Server Error:", err.response.data);
             } else if (err.request) {
-                console.error("Network Error: ", err.request);
+                console.error("Network Error:", err.request);
             } else {
-                console.error("Unknown Error: ", err.message);
+                console.error("Unknown Error:", err.message);
             }
         }
     };
-   
+    
     const fetchQuotationIcon = async (enquiry) => {
         const EnquiryNo = enquiry;
        
@@ -411,6 +413,9 @@
         const perfomaInvoice = () => {
             router.push('/SaleteamDasboard/GetPI');
         };
+        const GetQuotaionEid = () => {
+            router.push('/SaleteamDasboard/GetEidQuotation');
+        };
         
         if (error) {
             return <div>Error: {error}</div>;
@@ -494,6 +499,12 @@
                                 className="flex-1 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-300"
                             >
                                 Perfoma Invoice
+                            </button>
+                            <button
+                                onClick={GetQuotaionEid}
+                                className="flex-1 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-300"
+                            >
+                                ViewQuotaion
                             </button>
                         </nav>
 
@@ -668,7 +679,8 @@
                                                     
  
                                                     {
-    !conversionStatus[data?.EnquiryNo] ? (
+    !conversionStatus[data?.EnquiryNo]
+    ? (
         <td>
             <div className="flex space-x-4 mt-2">
                 <button

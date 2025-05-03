@@ -129,8 +129,8 @@ const ServiceEngineer = () => {
         {/* Header with toggle */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Service Engineer Details</h1>
-            <p className="text-gray-600">Viewing all records for engineer ID: {localStorage.getItem('idstore')}</p>
+            <h1 className="text-3xl font-bold text-gray-900">WorkVisit Details</h1>
+            <p className="text-gray-600"></p>
           </div>
           
           <div className="flex space-x-2 bg-white rounded-lg shadow-sm p-1">

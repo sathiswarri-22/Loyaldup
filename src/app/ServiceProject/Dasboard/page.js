@@ -107,7 +107,7 @@ const Dashboard = () => {
                             onClick={GetService}
                             className="flex-1 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-300"
                         >
-                            Get Service
+                            Workvisits
                         </button>
                     </nav>
 

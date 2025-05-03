@@ -155,8 +155,21 @@ const ProductList = () => {
   };
 
   const handleBackClick = () => {
-    router.push('/SaleteamDasboard/Dasboard');
+    const role = localStorage.getItem("role")?.trim().toLowerCase();
+    console.log("I got the role:", role);
+  
+    if (role === "service engineer" || role === "engineer") {
+      console.log("Redirecting to ServiceProject dashboard");
+      router.push("/ServiceProject/Dasboard");
+    } else if (role === "md") {
+      console.log("Redirecting to MD dashboard");
+      router.push("/admin/adminDasboard");
+    } else {
+      console.log("Redirecting to SalesTeam dashboard");
+      router.push("/SaleteamDasboard/Dasboard");
+    }
   };
+  
 
   const toggleAddForm = () => {
     setShowAddForm(!showAddForm);
@@ -206,11 +219,20 @@ const ProductList = () => {
             <div className="flex items-center gap-4">
               <button 
                 onClick={handleBackClick}
-                className="p-2 rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
-                aria-label="Go back"
-              >
-                <ChevronLeft size={20} />
-              </button>
+                className="inline-flex items-center px-4 py-2 mb-6 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-2"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Back
+                </button>
               <h2 className="text-2xl font-semibold text-gray-800">Inventory Management</h2>
             </div>
             

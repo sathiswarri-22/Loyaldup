@@ -1,10 +1,12 @@
 "use client";
 import { useRef, useEffect } from "react";
 import html2pdf from "html2pdf.js";
-
+import {  useRouter } from 'next/navigation';
+ 
 const InvoicePage = ({ workvisit, setWorkvisit, setIsSubmitted }) => {
   const contentRef = useRef();
   const buttonRef = useRef();
+  const router = useRouter();
 
   useEffect(() => {
     // Fixing the CSS issue
@@ -53,7 +55,22 @@ const InvoicePage = ({ workvisit, setWorkvisit, setIsSubmitted }) => {
         <div className="border-black pb-1 mb-2">
           <img src="/p4.jpeg" className="w-full h-auto object-contain" alt="Header" />
         </div>
-
+        <button
+          onClick={() => router.push('/ServiceProject/Dasboard')}
+          className="inline-flex items-center px-4 py-2 mb-6 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
         {/* Invoice Title */}
         <h2 className="text-center text-red-600 mt-[-10px] text-xl font-bold pb-5 border-2 mt-2 border-black">SERVICE REPORT</h2>
 

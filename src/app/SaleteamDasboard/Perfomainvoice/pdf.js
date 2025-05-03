@@ -83,6 +83,22 @@ const PDFPage = ({ rows, freight, gst, invoiceData, name, address, gstNumber }) 
 
   return (
     <div ref={contentRef} className="bg-gray-100 mx-3 min-h-screen">
+         <button
+          onClick={() => router.push('/SaleteamDasboard/Dasboard')}
+          className="inline-flex items-center px-4 py-2 mb-6 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 mr-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
       <div className="bg-white border border-black m-3 mx-auto rounded shadow" style={{ width: '760px' }}>
         <div className="border-b border-black pb-1 mb-2">
           <div className="flex justify-between items-center border-b border-black px-6">

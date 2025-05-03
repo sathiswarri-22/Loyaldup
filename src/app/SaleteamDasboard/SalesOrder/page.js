@@ -7,7 +7,9 @@ import jsPDF from "jspdf";
 import { autoTable } from "jspdf-autotable"; // Explicitly import autoTable
 
 const Salesorder = () => {
+  const Eid = localStorage.getItem('idstore');
   const [formData, setFormData] = useState({
+    Eid,
     salesOrderDetails: {
       customerName: "",
       quoteNumber: "",
@@ -173,6 +175,7 @@ const Salesorder = () => {
       );
       alert("Sales Order Created Successfully!");
       setFormData({
+        Eid:'',
         salesOrderDetails: {
           customerName: "",
           quoteNumber: "",
@@ -411,14 +414,25 @@ const Salesorder = () => {
   
 
   const handleBackClick = () => {
-    router.push('/SaleteamDasboard/Dasboard');
+    router.push('/SaleteamDasboard/CustomerConverted');
   }
 
   return (
     <div className="container mx-auto p-6 bg-white shadow-xl rounded-lg">
-      <button onClick={handleBackClick}>
-        <ChevronLeft size={24} />
-      </button>
+      <button onClick={handleBackClick} className="inline-flex items-center px-4 py-2 mb-6 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5 mr-2"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+  </svg>
+  Back
+</button>
       <h1 className="text-4xl font-bold text-center text-indigo-600 mb-6">Create Sales Order</h1>
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Sales Order Details */}
