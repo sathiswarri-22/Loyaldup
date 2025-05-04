@@ -68,8 +68,7 @@ export default function InvoiceDetail() {
       setIsEditing(false);
       alert("Invoice updated successfully");
 
-      // ✅ Navigate to the Edit PI page after saving the invoice
-      router.push(`/SaleteamDasboard/EditPI?piId=${piId}&EnquiryNo=${editableInvoice.EnquiryNo}`);
+      // Navigate to the Edit PI page after saving the invoice
     } catch (err) {
       alert("Failed to save changes: " + (err.response?.data?.message || err.message));
     }
@@ -88,11 +87,6 @@ export default function InvoiceDetail() {
     } catch (err) {
       alert("Failed to delete invoice: " + (err.response?.data?.message || err.message));
     }
-  };
-
-  const handleViewPDF = () => {
-    // Redirect to the PDF page using PI ID and Enquiry No
-    router.push(`/invoice/pdf?piId=${piId}&EnquiryNo=${invoice.EnquiryNo}`);
   };
 
   if (error) return <div className="text-red-500 text-center mt-10">{error}</div>;
@@ -123,21 +117,22 @@ export default function InvoiceDetail() {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <button
-          onClick={() => router.push('/SaleteamDasboard/Dasboard')}
-          className="inline-flex items-center px-4 py-2 mb-6 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 mr-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-            Back
-          </button>
+        onClick={() => router.push('/SaleteamDasboard/Dasboard')}
+        className="inline-flex items-center px-4 py-2 mb-6 text-sm font-medium text-white bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full shadow-md hover:shadow-lg hover:scale-105 transition-all duration-200"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5 mr-2"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        Back
+      </button>
+
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Invoice Details</h1>
@@ -164,9 +159,7 @@ export default function InvoiceDetail() {
               <button onClick={handleDelete} className="bg-red-500 text-white px-4 py-2 rounded-md">
                 Delete
               </button>
-              <button onClick={handleViewPDF} className="bg-green-600 text-white px-4 py-2 rounded-md">
-                View PDF
-              </button>
+              {/* PDF button removed from here */}
             </div>
           )}
         </div>
@@ -199,7 +192,7 @@ export default function InvoiceDetail() {
 
         <div className="mt-10">
           <button
-            onClick={() => window.history.back()}
+            onClick={() => router.push('/SaleteamDasboard/invoices')}
             className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md"
           >
             Back to Invoices

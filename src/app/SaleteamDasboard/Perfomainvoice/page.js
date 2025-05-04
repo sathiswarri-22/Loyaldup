@@ -12,7 +12,7 @@ const App = () => {
     uom: '',
     quantity: '',
     unitPrice: '',
-    gst: '',
+    gst: '18',
     total: 0,
   }]);
 
@@ -21,8 +21,8 @@ const App = () => {
   const [jurisdiction, setJurisdiction] = useState('Chennai');
   const [certification, setCertification] = useState('True');
   const [freight, setFreight] = useState('');
-  const [gstPercentage, setGstPercentage] = useState('18'); // Default GST percentage
-  const [calculatedGst, setCalculatedGst] = useState('0'); // Calculated GST amount
+  const [gstPercentage, setGstPercentage] = useState('18');
+  const [calculatedGst, setCalculatedGst] = useState('0');
   const [financialYear, setFinancialYear] = useState('24-25');
   const [generatedRefNumber, setGeneratedRefNumber] = useState('');
   const [invoiceData, setInvoiceData] = useState(null);
@@ -47,7 +47,15 @@ const App = () => {
     }
   }, [token]);
 
-  // Calculate totals whenever rows or freight changes
+  useEffect(() => {
+    // When gstPercentage changes, update all rows
+    const updatedRows = rows.map(row => ({
+      ...row,
+      gst: gstPercentage,
+    }));
+    setRows(updatedRows);
+  }, [gstPercentage]);
+
   useEffect(() => {
     const gstValue = calculateTotalGST();
     setCalculatedGst(gstValue);
@@ -97,13 +105,9 @@ const App = () => {
   };
 
   const calculateTotalGST = () => {
-    // Get subtotal
     const subtotal = calculateSubtotal();
-    // Get freight as a number
     const freightValue = parseFloat(freight || 0);
-    // Calculate GST on subtotal and freight
     const gstAmount = ((subtotal + freightValue) * parseFloat(gstPercentage || 0)) / 100;
-    
     return gstAmount.toFixed(2);
   };
 
@@ -111,7 +115,6 @@ const App = () => {
     const subtotal = calculateSubtotal();
     const freightValue = parseFloat(freight || 0);
     const gstAmount = parseFloat(calculatedGst);
-    
     return (subtotal + freightValue + gstAmount).toFixed(2);
   };
 
@@ -145,13 +148,14 @@ const App = () => {
         itemName: row.unitDescription,
         quantity: row.quantity,
         unitPrice: row.unitPrice,
+        gst: parseFloat(gstPercentage),
         total: row.total
       })),
-      freight,
-      gst: calculatedGst,
+      freight: parseFloat(freight || 0),
+      gst: parseFloat(calculatedGst),
       subtotal: calculateSubtotal(),
-      roundOff: calculateRoundOff(),
-      totalPayable: calculateTotalPayable(),
+      roundOff: parseFloat(calculateRoundOff()),
+      totalPayable: parseFloat(calculateTotalPayable()),
       financialYear,
     };
 
@@ -381,16 +385,16 @@ const App = () => {
           </div>
         </div>
       ) : (
-        <PDFPage 
-          invoice={invoiceData}  
-          rows={rows}
-          freight={freight}
-          gst={calculatedGst}
-          invoiceData={invoiceData}
-          name={name}
-          address={address}
-          gstNumber={gstNumber} 
-        />
+        <PDFPage
+        invoice={invoiceData}
+        rows={rows}
+        freight={freight}
+        gst={calculatedGst}
+        invoiceData={invoiceData}
+        name={name}
+        address={address}
+        gstNumber={gstNumber}
+      />
       )}
     </>
   );
