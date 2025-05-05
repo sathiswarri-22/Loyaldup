@@ -69,6 +69,9 @@ const Dashboard = () => {
   const handleGetquots = () => {
     router.push('/admin/GetAllquotation')
   }
+  const handleGetSO = () => {
+    router.push('/admin/GetSO')
+  }
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-teal-100 to-teal-300">
       <div className="w-full max-w-7xl p-3 md:p-6 lg:p-8 space-y-4 md:space-y-6 bg-white rounded-lg shadow-lg mx-auto my-4 md:my-8">
@@ -165,6 +168,12 @@ const Dashboard = () => {
             className="py-2 px-3 md:py-3 md:px-4 w-[calc(50%-4px)] sm:w-[calc(33.333%-8px)] md:w-auto text-white bg-teal-600 rounded-lg shadow-md hover:bg-teal-700 transition duration-300 text-xs sm:text-sm md:text-base font-medium text-center"
           >
            AllQuots get
+          </button>
+          <button
+            onClick={handleGetSO}
+            className="py-2 px-3 md:py-3 md:px-4 w-[calc(50%-4px)] sm:w-[calc(33.333%-8px)] md:w-auto text-white bg-teal-600 rounded-lg shadow-md hover:bg-teal-700 transition duration-300 text-xs sm:text-sm md:text-base font-medium text-center"
+          >
+           All Sales Order
           </button>
         </div>
 

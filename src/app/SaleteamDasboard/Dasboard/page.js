@@ -416,6 +416,9 @@
         const GetQuotaionEid = () => {
             router.push('/SaleteamDasboard/GetEidQuotation');
         };
+        const GetSO = () => {
+            router.push('/SaleteamDasboard/GetSO');
+        };
         
         if (error) {
             return <div>Error: {error}</div>;
@@ -505,6 +508,12 @@
                                 className="flex-1 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-300"
                             >
                                 ViewQuotaion
+                            </button>
+                            <button
+                                onClick={GetSO}
+                                className="flex-1 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 transition duration-300"
+                            >
+                                View Sales Order
                             </button>
                         </nav>
 
